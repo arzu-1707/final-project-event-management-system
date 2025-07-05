@@ -1,0 +1,14 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    show-sql: true
+
+  datasource:
+    username: user
+    password: 1234
+    url: jdbc:postgresql://localhost:5432/postgres
+    name: TicketingSystem
+
+
