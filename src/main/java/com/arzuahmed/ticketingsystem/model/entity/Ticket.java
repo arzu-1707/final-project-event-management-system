@@ -1,18 +1,18 @@
-package com.arzuahmed.ticketingsystem.model;
+package com.arzuahmed.ticketingsystem.model.entity;
 
+import com.arzuahmed.ticketingsystem.model.enums.STATUS;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.aspectj.apache.bcel.generic.LOOKUPSWITCH;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
-@Table(name = "ticker")
+@Table(name = "ticket")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ticket {
@@ -23,20 +23,22 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany
-    private List<User> user;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 
     @ManyToOne
+    @JoinColumn(name = "event_id")
     private Event event;
 
     @OneToOne
+    @JoinColumn(name = "ticket_type")
     private TicketType ticketType;
 
-    private LocalDateTime purchaseDate;
+    private LocalDateTime purchaseDate = LocalDateTime.now();
 
-    private enum status{
-        CONFIRMED,
-        CANCELED
-    };
+    @Enumerated(EnumType.STRING)
+    private STATUS status;
 
 }

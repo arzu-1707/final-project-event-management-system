@@ -1,16 +1,14 @@
-package com.arzuahmed.ticketingsystem.model;
+package com.arzuahmed.ticketingsystem.model.entity;
 
+import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.EnableMBeanExport;
-
-import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "tickerType")
+@Table(name = "ticket_Type")
 @AllArgsConstructor
 @NoArgsConstructor
 public class TicketType {
@@ -24,9 +22,8 @@ public class TicketType {
    @JoinColumn(name = "event_id")
    private Event event;
 
-    private enum typeName{
-        VIP, REGULAR
-    };
+    @Enumerated(EnumType.STRING)
+    private TICKETTYPENAME ticketTypeName;
 
     private Double price;
 

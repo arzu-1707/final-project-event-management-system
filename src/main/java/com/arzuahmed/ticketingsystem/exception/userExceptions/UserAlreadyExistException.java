@@ -1,4 +1,4 @@
-package com.arzuahmed.ticketingsystem.exception;
+package com.arzuahmed.ticketingsystem.exception.userExceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
