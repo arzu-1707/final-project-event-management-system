@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TicketType {
-   // id, event (relation), typeName (VIP, Regular), price, quantity
+   // id, event (relation), typeName (VIP, Regular), price
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +22,9 @@ public class TicketType {
    @JoinColumn(name = "event_id")
    private Event event;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)   // deyerin enum tipinde oldugunu ve daxilindekilerin String oldugunu mueyyen eden annotasiyadir
     private TICKETTYPENAME ticketTypeName;
 
     private Double price;
 
-    private Integer quantity;
 }

@@ -1,10 +1,10 @@
 package com.arzuahmed.ticketingsystem.model.dto.userDTO;
 
+import com.arzuahmed.ticketingsystem.model.dto.roleDTO.RoleDTO;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-
-    private Long id;
 
     private String name;
 
@@ -24,6 +22,5 @@ public class UserDTO {
 
     private String password;
 
-    private String role;
 
 }

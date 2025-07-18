@@ -11,4 +11,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     name: TicketingSystem
 
+#jwt:
+#  secrset: kjhkhdclnladhlnnvqhtr24532yhlij9c-iwijdlnksu9
+#  expiration: 3600000
+
+
 

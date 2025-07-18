@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.dto.eventDTO;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,9 @@ public class EventDTO {
 
     private String description;
 
-    private String location;
+    private Long placeId;
 
+    @Column(unique = true)
     private LocalDateTime eventDate;
 
     private Integer  maxTickets;
