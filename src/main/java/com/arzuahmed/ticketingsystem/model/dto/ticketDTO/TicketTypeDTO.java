@@ -1,4 +1,4 @@
-package com.arzuahmed.ticketingsystem.model.dto;
+package com.arzuahmed.ticketingsystem.model.dto.ticketDTO;
 
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,10 @@ public class TicketTypeDTO {
 
     private TICKETTYPENAME ticketTypeName;
 
+    private Long eventId;
+
     private Double price;
 
-    private Integer quantity;
+    private Integer ticketCount;
+
 }

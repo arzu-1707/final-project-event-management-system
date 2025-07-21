@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,16 +19,16 @@ import java.util.Set;
 @Entity
 @Builder
 @Table(name = "app_user")
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
-    //id, name, email, password, role (admin/user)
+    //id, userName, email, password, role (admin/user)
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String userName;
 
     @Email
     @NotBlank
@@ -42,9 +43,15 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Builder.Default
     private Set<Role> role= new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @Builder.Default
     private List<Ticket> tickets = new ArrayList<>();
+
+    public void addTicket(Ticket ticket){
+        tickets.add(ticket);
+    }
 }

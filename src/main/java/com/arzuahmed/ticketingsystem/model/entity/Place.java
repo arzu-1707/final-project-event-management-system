@@ -1,7 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "place")
 public class Place {
-    //id, placeName, description, event
+    //id, placeName, location, event, seatCapacity
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -27,14 +26,14 @@ public class Place {
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
+    @Builder.Default
     private List<Event> events = new ArrayList<>();
 
-    //sayi yazmaq
+    //oturacaq yerlerinin sayi sayi yazmaq
     private Integer seatCapacity;
 
     public void addEvent(Event event){
         events.add(event);
-        event.setPlace(this);
     }
 
     public void removeEvent(Event event){

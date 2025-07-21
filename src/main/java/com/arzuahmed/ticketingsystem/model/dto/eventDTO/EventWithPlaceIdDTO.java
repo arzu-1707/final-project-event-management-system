@@ -1,6 +1,7 @@
 package com.arzuahmed.ticketingsystem.model.dto.eventDTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,15 +14,25 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventDTO {
+public class EventWithPlaceIdDTO {
+
+    @NotBlank
+    @NotNull
+    @NotEmpty
+    private String name;
+
+    @NotBlank
+    @NotEmpty
+    @NotNull
+    private String description;
+
     @NotNull
     @NotEmpty
     @NotBlank
-    private String name;
+    private Long placeId;
 
-    private String description;
-
-    @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
+    @Column(unique = true)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     private Integer  maxTickets;

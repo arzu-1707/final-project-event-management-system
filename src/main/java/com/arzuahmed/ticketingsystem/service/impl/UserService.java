@@ -38,7 +38,7 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public List<User> findUserByUserName(String userName) {
-        List<User> users = userRepository.findUserByName(userName);
+        List<User> users = userRepository.findUserByUserName(userName);
         if (users.isEmpty()){
             throw new UsersNotFound("User is not found");
         }
@@ -53,8 +53,8 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public void deleteUser(Long userId) {
-      User userById = findUserById(userId);
-        userRepository.delete(userById);
+      User user = findUserById(userId);
+        userRepository.delete(user);
    }
 
 
@@ -90,12 +90,12 @@ public class UserService implements UserServiceInterface {
 //        return ResponseEntity.ok(newUser);
 //    } */
 //
-//    public ResponseEntity<User> updateEmail(Long userId, UserEmailDTO userEmailDTO) {
-//        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound("User is not found"));
-//        user.setEmail(userEmailDTO.getEmail());
-//        userRepository.save(user);
-//        return ResponseEntity.ok(user);
-//    }
+    public ResponseEntity<User> updateEmail(Long userId, UserEmailDTO userEmailDTO) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound("User is not found"));
+        user.setEmail(userEmailDTO.getEmail());
+        userRepository.save(user);
+        return ResponseEntity.ok(user);
+   }
 //
 //
 //    public ResponseEntity<User> updatePassword(Long userId, UserPasswordDTO userPasswordDTO) {

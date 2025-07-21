@@ -3,10 +3,11 @@ package com.arzuahmed.ticketingsystem.repository;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Repository
 public interface EventRepositoryInterface extends JpaRepository<Event, Long> {
 
     Event findByName(String name);
@@ -16,4 +17,7 @@ public interface EventRepositoryInterface extends JpaRepository<Event, Long> {
     List<Event> findEventByNameIsLikeIgnoreCase(String name);
 
     List<Event> findEventsByPlace(Place place);
+     Event findEventById(Long id);
+
+
 }

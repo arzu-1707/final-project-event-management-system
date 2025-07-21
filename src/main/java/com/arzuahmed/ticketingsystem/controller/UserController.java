@@ -1,10 +1,13 @@
 package com.arzuahmed.ticketingsystem.controller;
 
 
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.BuyTicketDTO;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserPasswordDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserEmailDTO;
+import com.arzuahmed.ticketingsystem.model.response.TicketResponse;
+import com.arzuahmed.ticketingsystem.service.impl.TicketService;
 import com.arzuahmed.ticketingsystem.service.impl.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final TicketService ticketService;
 
     //buyTicket, register
 
@@ -28,11 +32,11 @@ public class UserController {
     }
 
 
-//    //emailini deyisdirmek
-//    @PatchMapping("{userId}/email")
-//    public ResponseEntity<User> updateEmailInUser(@PathVariable Long userId, @RequestBody UserEmailDTO userEmailDTO){
-//        return userService.updateEmail(userId, userEmailDTO);
-//    }
+    //emailini deyisdirmek
+    @PatchMapping("{userId}/email")
+    public ResponseEntity<User> updateEmailInUser(@PathVariable Long userId, @RequestBody UserEmailDTO userEmailDTO){
+        return userService.updateEmail(userId, userEmailDTO);
+    }
 //
 //    //Password-nu deyisdirme
 //    @PatchMapping("{userId}/password")
@@ -54,7 +58,11 @@ public class UserController {
 //
 //    //Logout
 
-   // @PutMapping("/user/{userIs}/tickets/{ticketId}")
-
+    @PostMapping("/{userId}/tickets/buy")
+    public ResponseEntity<TicketResponse> buyTicket(@PathVariable Long userId,
+                                                    @RequestBody BuyTicketDTO buyTicketDTO){
+      ticketService.buyTicket(userId, buyTicketDTO);
+      return ResponseEntity.ok(new TicketResponse("Bilet ugurla alindi..", buyTicketDTO.getTicketNo()));
+    }
 
 }

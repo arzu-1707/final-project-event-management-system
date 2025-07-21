@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND) //404
-public class TickerNotFoundException extends RuntimeException{
-    public TickerNotFoundException(String message){
+public class TicketNotFoundException extends RuntimeException{
+    public TicketNotFoundException(String message){
         super(message);
     }
 }
