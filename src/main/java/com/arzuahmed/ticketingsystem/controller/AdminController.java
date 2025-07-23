@@ -1,6 +1,11 @@
 package com.arzuahmed.ticketingsystem.controller;
 
+import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
+import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
+import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceIdDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
+import com.arzuahmed.ticketingsystem.model.response.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.ResponseObject;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
@@ -12,6 +17,7 @@ import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
+import com.arzuahmed.ticketingsystem.model.wrapper.TicketAndTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.service.impl.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("v1/admin")
@@ -74,8 +81,12 @@ public class AdminController {
         return ResponseEntity.ok(eventService.createEvent(eventDTO));
     }
 
-    //Yaranmis event-i place-e elave etmek
-    //@PatchMapping("/events/{eventId}/")
+    //Yaranmis event-i place-e elave etme  +
+    @PatchMapping("/events/{eventId}")
+    public ResponseEntity<Event> addPlaceInEvent(@PathVariable Long eventId,
+                                                 @RequestBody PlaceIdDTO placeIdDTO){
+        return ResponseEntity.ok(eventService.addPlaceInEvent(eventId, placeIdDTO.getPlaceId()));
+    }
 
 
 
@@ -86,29 +97,62 @@ public class AdminController {
     }
 
 
-    //Movcud Event-e ticketType elave etmek
-    @PutMapping("/eventId/{eventId}/ticket-type")
-    public ResponseEntity<TicketType> addTicketTypeInEvent(@PathVariable Long eventId,
-                                                           @RequestBody TicketTypeDTO ticketTypeDTO){
-        return ResponseEntity.ok(ticketTypeService.addTicketTypeInEvent(eventId, ticketTypeDTO));
+    //Movcud Event-e ticket-leri elave etmek
+    @PatchMapping("/events/{eventId}/add-tickets")
+    public ResponseEntity<Event> addTicketsInEvent(@PathVariable Long eventId,
+                                                   @RequestBody AddTicketsDTO ticketsDTO){
+        return ResponseEntity.ok(eventService.addTicketsInEvent(eventId, ticketsDTO));
+    }
+
+
+    //Event-in Place deyismek (movcud bir place ile)   +
+    @PutMapping("/events/{eventId}/update-place")
+    public ResponseEntity<EventResponseDTO> updatePlaceInEvent(@PathVariable Long eventId,
+                                                                           @RequestBody PlaceDTO placeDTO){
+        Event event =eventService.updatePlace(eventId, placeDTO);
+
+        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
 
     }
 
-    //Event, TicketType (Tekce bir tipe uygun.. mes VIP) ve ticket yaradilmasi
+    //Event tarixini deyisdirmek    +
+    @PatchMapping("/events/{eventId}/update-event-date")
+    public ResponseEntity<EventResponseDTO> updateEventDate(@PathVariable Long eventId,
+                                                            @RequestBody EventDateDTO eventDateDTO){
+        Event event = eventService.updateEventDate(eventId, eventDateDTO);
+        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
+    }
+
+    //Movcud Event-e ticketType elave etmek    ??????????????? Mentiqsizdir mence hec bir menasi yoxdur
+    //@PutMapping("/eventId/{eventId}/ticket-type")
+    //public ResponseEntity<TicketType> addTicketTypeInEvent(@PathVariable Long eventId,
+      //                                                    @RequestBody TicketTypeDTO ticketTypeDTO){
+       // return ResponseEntity.ok(ticketTypeService.addTicketTypeInEvent(eventId, ticketTypeDTO));
+    //}
+
+    //Event, TicketType (Tekce bir tipe uygun.. mes VIP) ve ticket yaradilmasi   +
     @PostMapping("/create/event/ticket/ticket-type")
     public ResponseEntity<Event>  createEventTicketTicketType(@RequestBody
                                                               EventTicketTicketTypeDTO eventTicketTicketType){
         return ResponseEntity.ok(eventService.createEventTicketWithTicketType(eventTicketTicketType));
     }
 
-    //Event, TicketType (VIP, Regular ve s ucun) ve ticketler
+    //Event, TicketType (VIP, Regular ve s ucun) ve ticketler   +
     @PostMapping("/create/event/tickets/ticketType")
     public ResponseEntity<Event> createEventTicketTicketType(@RequestBody EventTicketTypeListTicketDTO eventTicketTypeListTicket){
         return ResponseEntity.ok(eventService.createEventTicketWithTicketType(eventTicketTypeListTicket));
     }
 
+    //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +
+    @PatchMapping("/events/{eventId}/add-tickets-ticketType")
+    public ResponseEntity<EventResponseDTO> addTicketsAndTicketTypeInEvent(@PathVariable Long eventId,
+                                                                           @RequestBody List<TicketTypeDTO> ticketTypeDTO){
+        Event event = eventService.addTicketType(eventId, ticketTypeDTO);
+        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
+    }
 
-    //Event Silmek
+
+    //Event Silmek  +
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<ResponseObject> deleteEventById(@PathVariable Long eventId){
         eventService.deleteEvent(eventId);
@@ -116,16 +160,25 @@ public class AdminController {
     }
 
 
-    //Place Elave etmek
+
+
+                     //Place ile bagli
+
+    //Place Elave etmek   +
     @PostMapping("/create/place")
     public ResponseEntity<Place> createPlace(@RequestBody @Valid PlaceDTO placeDTO){
         return ResponseEntity.ok(placeService.createPlace(placeDTO));
     }
 
-    //place Id-e gore axtaris
+    //place Id-e gore axtaris +
     @GetMapping("/places/{placeId}")
     public Place findPlaceById(@PathVariable Long placeId){
         return placeService.findPlaceById(placeId);
     }
+
+
+
+               //TicketType ile bagli
+
 
 }

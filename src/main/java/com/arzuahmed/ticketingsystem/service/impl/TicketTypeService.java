@@ -10,6 +10,8 @@ import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
 import com.arzuahmed.ticketingsystem.service.TicketServiceInterface;
 import com.arzuahmed.ticketingsystem.service.TicketTypeServiceInterface;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,7 +20,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TicketTypeService implements TicketTypeServiceInterface {
     private final TicketTypeRepository ticketTypeRepository;
-    private final EventService eventService;
+
+    @Lazy
+    @Autowired
+    private EventService eventService;
 
 
     //Event-e TicketType elave edilmesi
@@ -34,6 +39,12 @@ public class TicketTypeService implements TicketTypeServiceInterface {
     @Override
     public Optional<TicketType> findByEventIdAndTicketTypeName(Long eventId, TICKETTYPENAME ticketTypeName) {
         return ticketTypeRepository.findByEvent_IdAndTicketTypeName(eventId, ticketTypeName);
+    }
+
+    @Override
+    public TicketType findTicketTypeById(Long ticketTypeId) {
+       return   ticketTypeRepository.findById(ticketTypeId)
+                 .orElseThrow(()-> new TicketTypeNotFound("Ticket Type is not found"));
     }
 
 }

@@ -16,5 +16,5 @@ public interface PlaceServiceInterface {
 
     List<Place> findAllPlaces();
 
-    List<Event> findEventsByPlaceId(Long placeId);
+    Place findPlaceByNameAndLocation(String placeName, String location);
 }

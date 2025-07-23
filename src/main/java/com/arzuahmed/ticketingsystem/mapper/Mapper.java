@@ -2,12 +2,16 @@ package com.arzuahmed.ticketingsystem.mapper;
 
 
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketCreateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserDTO;
 import com.arzuahmed.ticketingsystem.model.entity.*;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
+import com.arzuahmed.ticketingsystem.model.response.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.TicketResponseDTO;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -76,6 +80,43 @@ public class Mapper {
             ticketTypeList.add(ticketType1);
         }
         return ticketTypeList;
+    }
+
+    public static Ticket ticketMapper(TicketCreateDTO ticketCreateDTO){
+        return Ticket.builder()
+                .ticketNo(ticketCreateDTO.getTicketCount())
+                .build();
+    }
+
+    public static List<Ticket> ticketsMapper(AddTicketsDTO ticketsDTOS){
+        List<Ticket> tickets = new ArrayList<>();
+        for (TicketCreateDTO ticketCreateDTO : ticketsDTOS.getTickets()){
+            Ticket ticket = ticketMapper(ticketCreateDTO);
+            tickets.add(ticket);
+        }
+        return tickets;
+    }
+
+    public static EventResponseDTO eventResponseMapper(Event event){
+        List<TicketResponseDTO> list = event.getTickets().stream()
+                .map(ticket -> TicketResponseDTO.builder()
+                        .ticketNo(ticket.getTicketNo())
+                        .ticketTypeName(
+                                ticket.getTicketType() != null ? ticket.getTicketType().getTicketTypeName() : null
+                        )
+                        .id(ticket.getId())
+                        .status(ticket.getStatus()).build())
+                .toList();
+        return EventResponseDTO.builder()
+                .eventName(event.getName())
+                .description(event.getDescription())
+                .eventDate(event.getEventDate())
+                .maxTickets(event.getMaxTickets())
+                .place(event.getPlace())
+                .availableTickets(event.getAvailableTickets())
+                .eventId(event.getId())
+                .tickets(list)
+                .build();
     }
 
 }

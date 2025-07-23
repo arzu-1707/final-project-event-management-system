@@ -49,6 +49,11 @@ public class Event {
     @JsonManagedReference
     private List<Ticket> tickets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<TicketType> ticketTypes = new ArrayList<>();
+
+
     private Integer  maxTickets;
 
     private Integer availableTickets;
@@ -61,6 +66,13 @@ public class Event {
             tickets.add(ticket);
         }
         return tickets;
+    }
+
+    public void addTicket(Ticket ticket){
+        if (tickets == null) {
+            tickets = new ArrayList<>();
+        }
+        tickets.add(ticket);
     }
 
 }

@@ -54,13 +54,10 @@ public class PlaceService implements PlaceServiceInterface {
         return allPlaces;
     }
 
+
     @Override
-    public List<Event> findEventsByPlaceId(Long placeId){
-        Place place = findPlaceById(placeId);
-        List<Event> events = place.getEvents();
-        if (events.isEmpty()){
-            throw new EventsNotFoundException("events not found");
-        }
-        return events;
+    public Place findPlaceByNameAndLocation(String placeName, String location) {
+        return placeRepository.findPlaceByPlaceNameAndLocation(placeName, location)
+                .stream().findFirst().orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
     }
 }

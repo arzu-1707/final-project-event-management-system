@@ -13,4 +13,5 @@ public interface PlaceRepositoryInterface extends JpaRepository<Place, Long> {
     List<Place> findPlaceByPlaceNameEqualsIgnoreCase(String placeName);
 
 
+    List<Place> findPlaceByPlaceNameAndLocation(String placeName, String location);
 }

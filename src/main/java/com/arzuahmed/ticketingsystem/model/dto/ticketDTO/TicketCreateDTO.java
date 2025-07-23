@@ -1,20 +1,19 @@
 package com.arzuahmed.ticketingsystem.model.dto.ticketDTO;
 
-import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CollectionId;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketTypeDTO {
+public class TicketCreateDTO {
 
-
-    private TICKETTYPENAME ticketTypeName;
-
-    private Double price;
-
+    @Column(unique = true)
     private Integer ticketCount;
+
+    private Long ticketTypeId;
 
 }

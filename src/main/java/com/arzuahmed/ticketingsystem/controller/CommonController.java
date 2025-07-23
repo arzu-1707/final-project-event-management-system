@@ -60,7 +60,7 @@ public class CommonController {
     //umumi placelerde kecirilecek tedbirleri gore biler
     @GetMapping("/places/{placeId}/events")
     public List<Event> findAllEventsByPlaceId(@PathVariable Long placeId){
-        return placeService.findEventsByPlaceId(placeId);
+        return eventService.findEventsByPlaceId(placeId);
     }
 
 

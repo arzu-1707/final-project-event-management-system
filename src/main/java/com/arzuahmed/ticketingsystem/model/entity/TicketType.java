@@ -1,6 +1,7 @@
 package com.arzuahmed.ticketingsystem.model.entity;
 
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class TicketType {
 
    @ManyToOne
    @JoinColumn(name = "event_id")
-   @JsonManagedReference
+   @JsonBackReference
    private Event event;
 
     @Enumerated(EnumType.STRING)   // deyerin enum tipinde oldugunu ve

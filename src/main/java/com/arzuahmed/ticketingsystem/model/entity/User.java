@@ -44,7 +44,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @Builder.Default
-    private Set<Role> role= new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -53,5 +53,9 @@ public class User {
 
     public void addTicket(Ticket ticket){
         tickets.add(ticket);
+    }
+
+    public void addRole(Role role){
+        roles.add(role);
     }
 }
