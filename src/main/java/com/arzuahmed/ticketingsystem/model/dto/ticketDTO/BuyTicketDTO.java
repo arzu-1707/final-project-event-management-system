@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 public class BuyTicketDTO {
         private Long eventId;
         private Integer ticketNo;
-        private TICKETTYPENAME tickettypename;
 }

@@ -41,32 +41,19 @@ public class TicketService implements TicketServiceInterface {
 
     @Override
     @Transactional
-    public Ticket buyTicket(Long userId, BuyTicketDTO buyTicketDTO) {
-        Long event = buyTicketDTO.getEventId();
+    public void buyTicket(Long userId, BuyTicketDTO buyTicketDTO) {
         User user = userService.findUserById(userId);
+        Event event = eventService.findEventById(buyTicketDTO.getEventId());
         Integer ticketNo = buyTicketDTO.getTicketNo();
+        Ticket ticket = ticketRepository.findTicketByEventAndTicketNoAndStatus(event,
+                ticketNo, STATUS.AVAILABLE).orElseThrow(() -> new TicketNotAvailable("Ticket Not Available"));
+        ticket.setStatus(STATUS.SOLD);
+        ticket.setUser(user);
+        ticket.setPurchaseDate(LocalDateTime.now());
+        user.addTicket(ticket);
+        ticketRepository.save(ticket);
+        userService.save(user);
 
-
-        TICKETTYPENAME ticketTypeName = buyTicketDTO.getTickettypename();
-
-        //Eventde TicketTypeName-in olub olmamasini yoxlayir...
-        TicketType ticketType = ticketTypeService.findByEventIdAndTicketTypeName(event, ticketTypeName)
-                .orElseThrow(() -> new TicketTypeNotFound("Ticket Type Not found"));
-
-
-        Ticket ticket = ticketRepository.findByEventIdAndTicketTypeAndTicketNoAndStatus(event,
-                        ticketType, ticketNo, STATUS.AVAILABLE)
-                .orElseThrow(() -> new TicketNotAvailable("Ticket not Available"));
-
-    ticket.setUser(user);
-    user.addTicket(ticket);
-    ticket.setPurchaseDate(LocalDateTime.now());
-    ticket.setStatus(STATUS.SOLD);
-        try {
-                return ticketRepository.save(ticket);
-            } catch (DataIntegrityViolationException e) {
-                throw new TicketAlreadySoldException("Ticket already sold");
-            }
     }
 
     @Override
@@ -85,19 +72,14 @@ public class TicketService implements TicketServiceInterface {
             throw new TicketAlreadySoldException("Ticket Already sold");
         }
 
-        for (int i = 0; i < tickets.size(); i++) {
-            tickets.get(i).setPurchaseDate(LocalDateTime.now());
-            user.addTicket(tickets.get(i));
-            tickets.get(i).setStatus(STATUS.SOLD);
+        for (Ticket ticket : tickets) {
+            ticket.setPurchaseDate(LocalDateTime.now());
+            user.addTicket(ticket);
+            ticket.setStatus(STATUS.SOLD);
         }
 
         ticketRepository.saveAll(tickets);
         userService.save(user);
-
-
-
-
-
     }
 
 
