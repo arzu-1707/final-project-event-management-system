@@ -2,6 +2,7 @@ package com.arzuahmed.ticketingsystem.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class Place {
     private List<Event> events = new ArrayList<>();
 
     //oturacaq yerlerinin sayi sayi yazmaq
+    @Positive
     private Integer seatCapacity;
 
     public void addEvent(Event event){

@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.response;
 
+import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class EventResponseDTO {
 
     @JsonFormat(pattern = "dd.MM.yyyy  HH:mm")
     private LocalDateTime eventDate;
-    private Place place;
+    private PlaceDTO place;
     private Integer maxTickets;
     private Integer availableTickets;
 

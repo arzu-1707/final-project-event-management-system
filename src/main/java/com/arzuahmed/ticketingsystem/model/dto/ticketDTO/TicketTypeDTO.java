@@ -17,4 +17,5 @@ public class TicketTypeDTO {
 
     private Integer ticketCount;
 
+
 }

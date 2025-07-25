@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TicketTypeRepository extends JpaRepository<TicketType, Long> {
     Optional<TicketType> findByEvent_IdAndTicketTypeName(Long eventId, TICKETTYPENAME ticketTypeName);
+
+    boolean existsByTicketTypeNameAndPrice(TICKETTYPENAME ticketTypeName, Double price);
 }

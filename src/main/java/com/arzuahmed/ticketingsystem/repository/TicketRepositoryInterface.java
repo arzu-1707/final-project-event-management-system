@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.repository;
 
+import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
@@ -17,5 +18,21 @@ public interface TicketRepositoryInterface extends JpaRepository<Ticket, Long> {
 
 
     Optional<Ticket> findByEventIdAndTicketTypeAndTicketNoAndStatus(Long eventId, TicketType ticketType, @Min(1) @Positive Integer ticketNo, STATUS status);
+
+    boolean existsTicketByTicketNo(@Min(1) @Positive Integer ticketNo);
+
+    boolean existsByTicketNo(@Min(1) @Positive Integer ticketNo);
+
+    int existsByEvent_IdAndTicketNo(Long eventİd, @Min(1) @Positive Integer ticketNo);
+
+    int existsByEventAndTicketNo(Event event, @Min(1) @Positive Integer ticketNo);
+
+    Object existsByTicketNoAndStatus(@Min(1) @Positive Integer ticketNo, STATUS status);
+
+    Object existsTicketByEventAndTicketNoAndStatus(Event event, @Min(1) @Positive Integer ticketNo, STATUS status);
+
+    List<Ticket> findTicketsByEventAndTicketNoAndStatus(Event event, @Min(1) @Positive Integer ticketNo, STATUS status);
+
+    List<Ticket> findAllByEventAndTicketNoAndStatus(Event event, @Min(1) @Positive Integer ticketNo, STATUS status);
     // Ticket findTicketsById(Long id);
 }

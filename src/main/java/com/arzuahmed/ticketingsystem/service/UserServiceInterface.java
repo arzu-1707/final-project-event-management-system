@@ -11,6 +11,7 @@ public interface UserServiceInterface {
    List<User> findUserByUserName(String userName);
     User findUserByEmail(UserEmailDTO userEmailDTO);
     void deleteUser(Long userId);
+    void save(User user);
 //    //User addUserRole(Long userId, RoleDTO role);
 
 }

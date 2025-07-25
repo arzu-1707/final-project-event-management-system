@@ -2,9 +2,11 @@ package com.arzuahmed.ticketingsystem.model.entity;
 
 import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {
-    //id, name, description, location, eventDate, maxTickets, availableTickets
+    //id, name, description, location, eventDate, maxTickets, availableTickets, place, ticket, ticketType
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,7 +42,7 @@ public class Event {
     private Place place;
 
     @Column(unique = true)
-
+    @Future(message = "Event tarixi kecmisde ola bilmez...")
     @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
     private LocalDateTime eventDate ;
 
@@ -51,6 +53,7 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
+    @JsonIgnore
     private List<TicketType> ticketTypes = new ArrayList<>();
 
 
@@ -74,5 +77,6 @@ public class Event {
         }
         tickets.add(ticket);
     }
+
 
 }

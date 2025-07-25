@@ -4,6 +4,8 @@ import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketAlreadySo
 import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketNotAvailable;
 import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketTypeNotFound;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.BuyTicketDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.BuyTicketsDTO;
+import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.entity.User;
@@ -17,7 +19,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +42,7 @@ public class TicketService implements TicketServiceInterface {
     @Override
     @Transactional
     public Ticket buyTicket(Long userId, BuyTicketDTO buyTicketDTO) {
-        Long eventId = buyTicketDTO.getEventId();
+        Long event = buyTicketDTO.getEventId();
         User user = userService.findUserById(userId);
         Integer ticketNo = buyTicketDTO.getTicketNo();
 
@@ -46,11 +50,11 @@ public class TicketService implements TicketServiceInterface {
         TICKETTYPENAME ticketTypeName = buyTicketDTO.getTickettypename();
 
         //Eventde TicketTypeName-in olub olmamasini yoxlayir...
-        TicketType ticketType = ticketTypeService.findByEventIdAndTicketTypeName(eventId, ticketTypeName)
+        TicketType ticketType = ticketTypeService.findByEventIdAndTicketTypeName(event, ticketTypeName)
                 .orElseThrow(() -> new TicketTypeNotFound("Ticket Type Not found"));
 
 
-        Ticket ticket = ticketRepository.findByEventIdAndTicketTypeAndTicketNoAndStatus(eventId,
+        Ticket ticket = ticketRepository.findByEventIdAndTicketTypeAndTicketNoAndStatus(event,
                         ticketType, ticketNo, STATUS.AVAILABLE)
                 .orElseThrow(() -> new TicketNotAvailable("Ticket not Available"));
 
@@ -65,8 +69,36 @@ public class TicketService implements TicketServiceInterface {
             }
     }
 
+    @Override
+    @Transactional
+    public void buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO) {
+        User user = userService.findUserById(userId);
+        Event event = eventService.findEventById(buyTicketsDTO.getEventId());
+        List<Integer> ticketNo = buyTicketsDTO.getTicketNo();
+        List<Ticket> tickets = new ArrayList<>();
+        for (Integer ticket : ticketNo){
+            List<Ticket> foundTickets = ticketRepository.findAllByEventAndTicketNoAndStatus(event, ticket, STATUS.AVAILABLE);
+              tickets.addAll(foundTickets);
+        }
+
+        if (ticketNo.size()!= tickets.size()){
+            throw new TicketAlreadySoldException("Ticket Already sold");
+        }
+
+        for (int i = 0; i < tickets.size(); i++) {
+            tickets.get(i).setPurchaseDate(LocalDateTime.now());
+            user.addTicket(tickets.get(i));
+            tickets.get(i).setStatus(STATUS.SOLD);
+        }
+
+        ticketRepository.saveAll(tickets);
+        userService.save(user);
 
 
+
+
+
+    }
 
 
 }

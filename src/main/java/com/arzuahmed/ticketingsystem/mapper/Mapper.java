@@ -4,6 +4,7 @@ package com.arzuahmed.ticketingsystem.mapper;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketCreateDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
@@ -37,7 +38,7 @@ public class Mapper {
                 .name(eventDTO.getName())
                 .description(eventDTO.getDescription())
                 .eventDate(eventDTO.getEventDate())
-                .availableTickets(eventDTO.getAvailableTickets())
+                .availableTickets(eventDTO.getMaxTickets())
                 .maxTickets(eventDTO.getMaxTickets())
                 .build();
     }
@@ -98,7 +99,34 @@ public class Mapper {
     }
 
     public static EventResponseDTO eventResponseMapper(Event event){
-        List<TicketResponseDTO> list = event.getTickets().stream()
+        List<TicketResponseDTO> list = ticketDTOMapper(event);
+
+        PlaceDTO placeDTO = PlaceDTO.builder()
+                .placeName(event.getPlace().getPlaceName())
+                .seatCapacity(event.getPlace().getSeatCapacity())
+                .build();
+
+        return EventResponseDTO.builder()
+                .eventName(event.getName())
+                .description(event.getDescription())
+                .eventDate(event.getEventDate())
+                .maxTickets(event.getMaxTickets())
+                .place(placeDTO)
+                .availableTickets(event.getAvailableTickets())
+                .eventId(event.getId())
+                .tickets(list)
+                .build();
+    }
+    public static PlaceDTO placeResponseDTOMapper(Place place){
+        return PlaceDTO.builder()
+                .placeName(place.getPlaceName())
+                .location(place.getLocation())
+                .seatCapacity(place.getSeatCapacity())
+                .build();
+    }
+
+    public static List<TicketResponseDTO> ticketDTOMapper(Event event){
+        return  event.getTickets().stream()
                 .map(ticket -> TicketResponseDTO.builder()
                         .ticketNo(ticket.getTicketNo())
                         .ticketTypeName(
@@ -107,16 +135,27 @@ public class Mapper {
                         .id(ticket.getId())
                         .status(ticket.getStatus()).build())
                 .toList();
-        return EventResponseDTO.builder()
-                .eventName(event.getName())
-                .description(event.getDescription())
-                .eventDate(event.getEventDate())
-                .maxTickets(event.getMaxTickets())
-                .place(event.getPlace())
-                .availableTickets(event.getAvailableTickets())
-                .eventId(event.getId())
-                .tickets(list)
-                .build();
     }
 
+    public static EventResponseDTO eventResponseDTOMapper(Event event){
+        return  EventResponseDTO.builder()
+                .availableTickets(event.getAvailableTickets())
+                .eventName(event.getName())
+                .description(event.getDescription())
+                .maxTickets(event.getMaxTickets())
+                .place(placeResponseDTOMapper(event.getPlace()))
+                .eventDate(event.getEventDate())
+                .tickets(ticketDTOMapper(event))
+                .build();
+
+    }
+    /*public static EventResponseDTO eventResponseWithTicketTypeListMapper(Event event){
+        return EventResponseDTO.builder()
+                .maxTickets(event.getMaxTickets())
+                .eventDate(event.getEventDate())
+                .description(event.getDescription())
+                .eventName(event.getName())
+                .availableTickets(event.getAvailableTickets())
+                .tickets(event.getTickets())
+    }*/
 }

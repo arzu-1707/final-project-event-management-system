@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EventTicketTicketTypeDTO {
     private EventWithPlaceIdDTO eventDTO;
-    private  TicketDTO ticketDTO;
     private TicketTypeDTO ticketTypeDTO;
 }

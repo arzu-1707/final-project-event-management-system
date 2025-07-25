@@ -10,7 +10,6 @@ import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketCreateDTO;
-import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
@@ -20,21 +19,19 @@ import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
-import com.arzuahmed.ticketingsystem.model.wrapper.TicketAndTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.repository.EventRepositoryInterface;
 import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
 import com.arzuahmed.ticketingsystem.service.EventServiceInterface;
+import com.arzuahmed.ticketingsystem.validate.Validate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.internal.metadata.facets.Validatable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +68,9 @@ public class EventService implements EventServiceInterface {
 
         Place place = placeService.findPlaceById(eventDTO.getPlaceId());
 
+        //MaxTicket sayi seatCapacity-den cox olmamalidir...
+        Validate.validateMaxTickets(eventDTO.getMaxTickets(), place.getSeatCapacity());
+
         Event event = Mapper.eventMapper(eventDTO);
         event.setPlace(place);
         place.addEvent(event);
@@ -82,6 +82,8 @@ public class EventService implements EventServiceInterface {
 
         return savedEvent;
     }
+
+
 
     @Override
     @Transactional
@@ -120,9 +122,13 @@ public class EventService implements EventServiceInterface {
         place.addEvent(event);
         Event savedEvent = eventRepository.save(event);
 
+        Validate.validateMaxTickets(eventTicketTicketType.getEventDTO().getMaxTickets(), event.getPlace().getSeatCapacity());
+        Validate.validateTicketCount(eventTicketTicketType.getTicketTypeDTO().getTicketCount(), eventTicketTicketType.getEventDTO().getMaxTickets());
+
+
         TicketType ticketType = Mapper.ticketTypeMapper(eventTicketTicketType.getTicketTypeDTO());
         ticketType.setEvent(savedEvent);
-        ticketTypeRepository.save(ticketType);
+        TicketType savedTicketType = ticketTypeRepository.save(ticketType);
 
 
         List<Ticket> tickets = new ArrayList<>();
@@ -132,11 +138,13 @@ public class EventService implements EventServiceInterface {
             ticket.setTicketNo(ticketCounter++);
             ticket.setEvent(savedEvent);
             ticket.setStatus(STATUS.AVAILABLE);
-            ticket.setTicketType(ticketType);
+            ticket.setTicketType(savedTicketType);
             tickets.add(ticket);
         }
+
          ticketService.saveAll(tickets);
-        savedEvent.setTickets(tickets);
+         savedEvent.setTickets(tickets);
+
          return savedEvent;
     }
 
@@ -152,11 +160,15 @@ public class EventService implements EventServiceInterface {
         place.addEvent(event);
         Event savedEvent = eventRepository.save(event);
 
+        Validate.validateMaxTickets(eventTicketTypeListTicket.getEventDTO().getMaxTickets(), event.getPlace().getSeatCapacity());
+        Validate.validateTicketCountsFromTypeDTO(eventTicketTypeListTicket.getTicketTypeDTOS(), eventTicketTypeListTicket.getEventDTO().getMaxTickets());
+
         List<TicketType> ticketTypeList = Mapper.ticketTypesMapper(eventTicketTypeListTicket.getTicketTypeDTOS());
         for (TicketType ticketType: ticketTypeList){
             ticketType.setEvent(event);
             ticketTypeRepository.save(ticketType);
         }
+
 
         List<Ticket> tickets = new ArrayList<>();
         int ticketCounter = 1;
@@ -167,7 +179,6 @@ public class EventService implements EventServiceInterface {
 
             for (int j = 1; j <= ticketTypeDTO.getTicketCount(); j++) {
                 Ticket ticket = new Ticket();
-                ticket.setPurchaseDate(eventTicketTypeListTicket.getTicketDTO().getPurchaseDate());
                 ticket.setTicketNo(ticketCounter++);
                 ticket.setEvent(savedEvent);
                 ticket.setTicketType(ticketType);
@@ -228,6 +239,8 @@ public class EventService implements EventServiceInterface {
 
        // List<Ticket> tickets = Mapper.ticketsMapper(ticketsDTO);
         List<Ticket> tickets = new ArrayList<>();
+        Validate.validateTicketCountsFromCreateDTO(ticketsDTO.getTickets(), event.getMaxTickets());
+
         int counter = 1;
         for (int i = 0; i < ticketsDTO.getTickets().size(); i++) {
             TicketCreateDTO ticketCreateDTO = ticketsDTO.getTickets().get(i);
@@ -239,10 +252,9 @@ public class EventService implements EventServiceInterface {
                 ticket.setStatus(STATUS.AVAILABLE);
                 ticket.setEvent(event);
                 tickets.add(ticket);
+                event.addTicket(ticket);
             }
         }
-        event.setTickets(tickets);
-        ticketService.saveAll(tickets);
 
         return eventRepository.save(event);
     }
@@ -253,6 +265,7 @@ public class EventService implements EventServiceInterface {
                 new EventNotFoundException("Event is not found"));
         List<Ticket> tickets = new ArrayList<>();
 
+        Validate.validateTicketCountsFromTypeDTO(ticketTypeDTO, event.getMaxTickets());
         int counter = 1;
        for(TicketTypeDTO ticketType : ticketTypeDTO){
            TicketType ticketType1 = Mapper.ticketTypeMapper(ticketType);

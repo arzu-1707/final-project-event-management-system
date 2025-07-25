@@ -4,11 +4,16 @@ import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventsNotFoundExc
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceAlreadyExistsException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlacesNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketTypeAlreadyExistException;
 import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
+import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.repository.PlaceRepositoryInterface;
+import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
 import com.arzuahmed.ticketingsystem.service.PlaceServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,7 @@ import java.util.List;
 public class PlaceService implements PlaceServiceInterface {
 
     private final PlaceRepositoryInterface placeRepository;
+    private final TicketTypeRepository ticketTypeRepository;
 
     @Override
     public Place createPlace(PlaceDTO placeDTO) {
@@ -60,4 +66,21 @@ public class PlaceService implements PlaceServiceInterface {
         return placeRepository.findPlaceByPlaceNameAndLocation(placeName, location)
                 .stream().findFirst().orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
     }
-}
+
+    @Override
+    public void deletePlaceById(Long placeId)
+    {
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
+        placeRepository.delete(place);
+    }}
+
+//    @Override
+//    public TicketType addTicketType(TicketTypeDTO ticketTypeDTO) {
+//        TicketType ticketType = Mapper.ticketTypeMapper(ticketTypeDTO);
+//        if (ticketTypeRepository.existsByTicketTypeNameAndPrice(ticketType.getTicketTypeName(), ticketType.getPrice())){
+//           throw new TicketTypeAlreadyExistException("Bu TicketType artiq bazada movcuddur..");
+//        }
+//       return ticketTypeRepository.save(ticketType);
+//    }
+//}

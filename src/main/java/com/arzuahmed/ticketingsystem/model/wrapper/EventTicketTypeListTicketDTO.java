@@ -14,6 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class EventTicketTypeListTicketDTO {
     private EventWithPlaceIdDTO eventDTO;
-    private TicketDTO ticketDTO;
     private List<TicketTypeDTO> ticketTypeDTOS;
 }

@@ -115,4 +115,9 @@ public class UserService implements UserServiceInterface {
     public Optional<User> findByEmail(String email){
         return userRepository.findByEmail(email);
     }
+
+    @Override
+    public void save(User user){
+        userRepository.save(user);
+    }
 }

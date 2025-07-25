@@ -31,12 +31,12 @@ public class EventWithPlaceIdDTO {
     @NotBlank
     private Long placeId;
 
+
     @Column(unique = true)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
     private LocalDateTime eventDate;
 
     private Integer  maxTickets;
 
-    private Integer availableTickets;
 
 }

@@ -1,6 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.dto.ticketDTO;
 
-import jakarta.persistence.Column;
+import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,12 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketCreateDTO {
+public class AddTicketTypeDTO {
+    private TICKETTYPENAME ticketTypeName;
 
-    @Column(unique = true)
-    private Integer ticketCount;
-
-    private Long ticketTypeId;
-
+    private Double price;
 
 }
