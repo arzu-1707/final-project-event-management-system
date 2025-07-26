@@ -1,40 +1,35 @@
-package com.arzuahmed.ticketingsystem.model.dto.eventDTO;
+package com.arzuahmed.ticketingsystem.model.response.eventResponse;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventWithPlaceIdDTO {
-
-    @NotBlank
+public class EventAndPlaceResponseDTO {
     @NotNull
-    @NotEmpty
     private String name;
 
-    @NotBlank
-    @NotEmpty
     @NotNull
     private String description;
 
-    @NotNull
     private Long placeId;
 
-
-    @Column(unique = true)
+    @Future(message = "Event tarixi kecmisde ola bilmez...")
     @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
-    private LocalDateTime eventDate;
+    private LocalDateTime eventDate ;
 
     private Integer  maxTickets;
 
+    private Integer availableTickets;
 
 }

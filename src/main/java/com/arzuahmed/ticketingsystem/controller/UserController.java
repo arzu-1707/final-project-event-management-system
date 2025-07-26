@@ -48,25 +48,21 @@ public class UserController {
 //
 //
 //
-//    //register olmaq ucun
-//   // @PostMapping("/register")
-//   // @ResponseStatus(HttpStatus.CREATED)
-//    //public ResponseEntity<User> register(@Valid @RequestBody UserDTO userDTO){
-//       // return userService.register(userDTO);
-//   // }
 //
 //    //Login
 //
 //
 //    //Logout
 
-    @PostMapping("/{userId}/ticket/buy")
+    //Ticket Almaq +
+    @PatchMapping("/{userId}/ticket/buy")
     public ResponseEntity<TicketResponse> buyTicket(@PathVariable Long userId,
                                                     @RequestBody BuyTicketDTO buyTicketDTO){
       ticketService.buyTicket(userId, buyTicketDTO);
       return ResponseEntity.ok(new TicketResponse("Bilet ugurla alindi..", buyTicketDTO.getTicketNo()));
     }
 
+    //Ticketler almaq  +
     @PatchMapping("/{userId}/tickets/buy")
     public ResponseEntity<TicketsResponse> buyTickets(@PathVariable Long userId,
                                                      @RequestBody BuyTicketsDTO buyTicketsDTO){

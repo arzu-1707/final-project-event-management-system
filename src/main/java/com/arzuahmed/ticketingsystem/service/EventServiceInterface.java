@@ -5,6 +5,10 @@ import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
@@ -21,7 +25,7 @@ public interface EventServiceInterface {
 
     Event findEventByName(String eventName);
 
-    Event createEventWithTickets(EventWithPlaceIdDTO eventDTO);
+    EventPlaceIdWithTicketsDTO createEventWithTickets(EventWithPlaceIdDTO eventDTO);
 
     void deleteEvent(Long eventId);
 
@@ -29,25 +33,23 @@ public interface EventServiceInterface {
 
     List<Event> getEventByName(String eventName);
 
-    Event createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType);
+    EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType);
 
-    Event createEventTicketWithTicketType(EventTicketTypeListTicketDTO eventTicketTypeListTicket);
+    EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTypeListTicketDTO eventTicketTypeListTicket);
 
     Event existedEvent(Event event);
 
     Event existedEventById(Long eventId);
 
-    Event createEvent(@Valid EventDTO eventDTO);
+    EventResponseDTO createEvent(@Valid EventDTO eventDTO);
 
-    Event addPlaceInEvent(Long eventId, Long placeId);
+    EventAndPlaceResponseDTO addPlaceInEvent(Long eventId, Long placeId);
 
-    Event addTicketsInEvent(Long eventId, AddTicketsDTO ticketsDTO);
+    EventAndTicketsResponseDTO addTicketType(Long eventId, List<TicketTypeDTO> ticketTypeDTO);
 
-    Event addTicketType(Long eventId, List<TicketTypeDTO> ticketTypeDTO);
-
-    Event updatePlace(Long eventId, PlaceDTO placeDTO);
+    EventAndPlaceResponseDTO updatePlace(Long eventId, PlaceDTO placeDTO);
 
     List<Event> findEventsByPlaceId(Long placeId);
 
-    Event updateEventDate(Long eventId, EventDateDTO eventDateDTO);
+    EventResponseDTO updateEventDate(Long eventId, EventDateDTO eventDateDTO);
 }

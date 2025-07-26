@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class TicketResponseDTO {
-    private Long id;
     private Integer ticketNo;
     private STATUS status;
     private TICKETTYPENAME ticketTypeName;

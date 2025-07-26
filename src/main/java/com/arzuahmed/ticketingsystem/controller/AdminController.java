@@ -3,30 +3,33 @@ package com.arzuahmed.ticketingsystem.controller;
 import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
+import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
-import com.arzuahmed.ticketingsystem.model.response.EventResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.ResponseObject;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
-import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
+import com.arzuahmed.ticketingsystem.model.entity.Event;
+import com.arzuahmed.ticketingsystem.model.entity.TicketType;
+import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
+import com.arzuahmed.ticketingsystem.model.response.ResponseObject;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserEmailDTO;
-import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
-import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.entity.User;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
-import com.arzuahmed.ticketingsystem.model.wrapper.TicketAndTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.service.impl.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("v1/admin")
@@ -70,109 +73,109 @@ public class AdminController {
          return ResponseEntity.ok(new ResponseObject("Istifadeci silindi..", userId));
     }
 
+    //---------------------------------------------------------------------------------------------------------
 
+    //----------------------------------------Event ile bagli--------------------------------------------------
 
-
-    //---------------------------------Event ile bagli----------------------------------------------
-
-    //Event Yaratmaq   +
+    //Event Yaratmaq   ++++++ Postman+++ isleyir
     @PostMapping("/create/event")
-    public ResponseEntity<Event> createEvent(@RequestBody @Valid EventDTO eventDTO){
-        return ResponseEntity.ok(eventService.createEvent(eventDTO));
+    public ResponseEntity<CommonResponse<EventResponseDTO>> createEvent(@RequestBody @Valid EventDTO eventDTO){
+       EventResponseDTO eventResponseDTO = eventService.createEvent(eventDTO);
+       return ResponseEntity.status(HttpStatus.CREATED)
+               .body(CommonResponse.success("Event ugurla elave edilmisdir...",eventResponseDTO));
     }
 
-    //Yaranmis event-i place-e elave etme  +
+
+    //Event Silmek  ++++++Postman+++ isledi
+    @DeleteMapping("/events/{eventId}")
+    public ResponseEntity<CommonResponse> deleteEventById(@PathVariable Long eventId){
+        eventService.deleteEvent(eventId);
+        return ResponseEntity.ok(CommonResponse.success("Id-si " + eventId
+                + " olan Event ugurla silinmisdir...", null));
+    }
+
+
+    //Yaranmis event-a movcud place-i elave etmek  ++++Postman+++ isledi
     @PatchMapping("/events/{eventId}")
-    public ResponseEntity<Event> addPlaceInEvent(@PathVariable Long eventId,
-                                                 @RequestBody PlaceIdDTO placeIdDTO){
-        return ResponseEntity.ok(eventService.addPlaceInEvent(eventId, placeIdDTO.getPlaceId()));
+    public ResponseEntity<CommonResponse<EventAndPlaceResponseDTO>> addPlaceInEvent(@PathVariable Long eventId,
+                                                                                    @RequestBody PlaceIdDTO placeIdDTO){
+        EventAndPlaceResponseDTO eventAndPlaceResponseDTO = eventService.addPlaceInEvent(eventId, placeIdDTO.getPlaceId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CommonResponse.success(eventAndPlaceResponseDTO.getName()
+                        + " adli Event-a ID-si " + eventAndPlaceResponseDTO.getPlaceId()
+                        + " olan Place ugurla elave edildi..",eventAndPlaceResponseDTO));
     }
 
-    //Event-in Place deyismek (movcud bir place ile)   +
+
+
+
+    //Event-in Place deyismek (movcud bir place ile)   ++++Postman ++ isledi
     @PutMapping("/events/{eventId}/update-place")
-    public ResponseEntity<EventResponseDTO> updatePlaceInEvent(@PathVariable Long eventId,
+    public ResponseEntity<CommonResponse<EventAndPlaceResponseDTO>> updatePlaceInEvent(@PathVariable Long eventId,
                                                                @RequestBody PlaceDTO placeDTO){
-        Event event =eventService.updatePlace(eventId, placeDTO);
+        EventAndPlaceResponseDTO event =eventService.updatePlace(eventId, placeDTO);
 
-        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CommonResponse.success(event.getName()
+                        + " adli Event-a ID-si " + event.getPlaceId()
+                        + " olan Place ile ugurla deyisdirildi...", event));
 
     }
 
 
-    //Event ve ona uygun ticket avtomatik maxtickete gore elave etmek  +
-    @PostMapping("/create/event/ticket")
-    public ResponseEntity<Event> createEventWithTickets(@RequestBody @Valid EventWithPlaceIdDTO eventDTO) {
-        return ResponseEntity.ok(eventService.createEventWithTickets(eventDTO));
-    }
 
-
-    //Movcud Event-e ticket-leri elave etmek +
-    @PatchMapping("/events/{eventId}/add-tickets")
-    public ResponseEntity<EventResponseDTO> addTicketsInEvent(@PathVariable Long eventId,
-                                                   @RequestBody AddTicketsDTO ticketsDTO){
-        Event event = eventService.addTicketsInEvent(eventId, ticketsDTO);
-        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
-    }
 
 
     //Event tarixini deyisdirmek    +
     @PatchMapping("/events/{eventId}/update-event-date")
-    public ResponseEntity<EventResponseDTO> updateEventDate(@PathVariable Long eventId,
+    public ResponseEntity<CommonResponse<EventResponseDTO>> updateEventDate(@PathVariable Long eventId,
                                                             @RequestBody @Valid EventDateDTO eventDateDTO){
-        Event event = eventService.updateEventDate(eventId, eventDateDTO);
-        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
+        EventResponseDTO event = eventService.updateEventDate(eventId, eventDateDTO);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Event-in tarixi ugurla deyisdirildi..",event));
     }
 
-    //Movcud Event-e ticketType elave etmek    ??????????????? Mentiqsizdir mence hec bir menasi yoxdur
-    //@PutMapping("/eventId/{eventId}/ticket-type")
-    //public ResponseEntity<TicketType> addTicketTypeInEvent(@PathVariable Long eventId,
-      //                                                    @RequestBody TicketTypeDTO ticketTypeDTO){
-       // return ResponseEntity.ok(ticketTypeService.addTicketTypeInEvent(eventId, ticketTypeDTO));
-    //}
 
-
-
-    //Event, TicketType (Tekce bir tipe uygun.. mes VIP) ve ticket yaradilmasi   +
+    //Event, TicketType (Tekce bir tipe uygun.. mes VIP) ve ticket yaradilmasi   +++Postman+++++ isledi
     @PostMapping("/create/event/ticket/ticket-type")
-    public ResponseEntity<EventResponseDTO>  createEventTicketTicketType(@RequestBody
-                                                              EventTicketTicketTypeDTO eventTicketTicketType){
-        Event event = eventService.createEventTicketWithTicketType(eventTicketTicketType);
-        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
+    public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>>  createEventTicketTicketType(@RequestBody
+                                                                         EventTicketTicketTypeDTO eventTicketTicketType){
+        EventAndTicketsResponseDTO event = eventService.createEventTicketWithTicketType(eventTicketTicketType);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CommonResponse.success("Event biletler ile birlikde ugurla yaradildi...",
+                        event));
+
     }
 
-    //Event, TicketType (VIP, Regular ve s ucun) ve ticketler      +
+    //Event, TicketType (VIP, Regular ve s ucun) ve ticketler      ++++Postman+++ isledi
    @PostMapping("/create/event/tickets/ticketType")
-    public ResponseEntity<EventResponseDTO> createEventTicketTicketType(@RequestBody EventTicketTypeListTicketDTO eventTicketTypeListTicket){
+    public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> createEventTicketTicketType(@RequestBody EventTicketTypeListTicketDTO eventTicketTypeListTicket){
 
-        Event event = eventService.createEventTicketWithTicketType(eventTicketTypeListTicket);
-        return ResponseEntity.ok(Mapper.eventResponseDTOMapper(event));
+        EventAndTicketsResponseDTO event = eventService.createEventTicketWithTicketType(eventTicketTypeListTicket);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CommonResponse.success("Event biletler ile birlikde ugurla yaradildi...",event));
     }
 
-    //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +
+    //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +++++Postman++ isledi
     @PatchMapping("/events/{eventId}/add-tickets-ticketType")
-    public ResponseEntity<EventResponseDTO> addTicketsAndTicketTypeInEvent(@PathVariable Long eventId,
+    public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> addTicketsAndTicketTypeInEvent(@PathVariable Long eventId,
                                                                            @RequestBody List<TicketTypeDTO> ticketTypeDTO){
-        Event event = eventService.addTicketType(eventId, ticketTypeDTO);
-        return ResponseEntity.ok(Mapper.eventResponseMapper(event));
+        EventAndTicketsResponseDTO event = eventService.addTicketType(eventId, ticketTypeDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CommonResponse.success("Evente biletler elave edildi...",event));
     }
 
-
-    //Event Silmek  +
-    @DeleteMapping("/events/{eventId}")
-    public ResponseEntity<ResponseObject> deleteEventById(@PathVariable Long eventId){
-        eventService.deleteEvent(eventId);
-        return ResponseEntity.ok(new ResponseObject("Ugurla silindi...", eventId));
-    }
-//-----------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------
 
 
 
-
-    //-----------------------------------------Place ile bagli----------------------------------------------
+//---------------------------------------------Place ile bagli----------------------------------------------------
 
     //Place Elave etmek   +
     @PostMapping("/create/place")
-    public ResponseEntity<Place> createPlace(@RequestBody @Valid PlaceDTO placeDTO){
+    public ResponseEntity<Place> createPlace(@RequestBody @Valid PlaceDTO placeDTO ){
         return ResponseEntity.ok(placeService.createPlace(placeDTO));
     }
 

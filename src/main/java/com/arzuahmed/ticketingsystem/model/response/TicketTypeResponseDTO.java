@@ -1,4 +1,4 @@
-package com.arzuahmed.ticketingsystem.model.dto.ticketDTO;
+package com.arzuahmed.ticketingsystem.model.response;
 
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketTypeDTO {
-
+public class TicketTypeResponseDTO {
 
     private TICKETTYPENAME ticketTypeName;
 
     private Double price;
-
-    private Integer ticketCount;
-
-
 }

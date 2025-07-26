@@ -1,6 +1,7 @@
 package com.arzuahmed.ticketingsystem.model.entity;
 
 import com.arzuahmed.ticketingsystem.mapper.Mapper;
+import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,7 +21,12 @@ import java.util.List;
 @Data
 @Entity
 @Builder
-@Table(name = "event")
+@Table(
+        name = "event",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"event_date", "place_id"})   // eyni yerde eyni vaxtda 2 event olmamasi ucun
+        }
+)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {

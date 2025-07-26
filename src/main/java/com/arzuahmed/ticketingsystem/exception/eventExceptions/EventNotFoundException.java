@@ -1,11 +1,16 @@
 package com.arzuahmed.ticketingsystem.exception.eventExceptions;
 
+import com.arzuahmed.ticketingsystem.exception.CustomException;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND) //404
-public class EventNotFoundException extends RuntimeException{
-    public EventNotFoundException(String message){
-        super(message);
+
+public class EventNotFoundException extends CustomException {
+    public EventNotFoundException(ErrorCode errorCode){
+        super(errorCode);
+    }
+    public EventNotFoundException(ErrorCode errorCode, String message){
+        super(errorCode,message);
     }
 }
