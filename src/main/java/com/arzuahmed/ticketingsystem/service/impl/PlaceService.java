@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.service.impl;
 
+import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventsNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceAlreadyExistsException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceNotFoundException;
@@ -12,10 +13,15 @@ import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
 import com.arzuahmed.ticketingsystem.repository.PlaceRepositoryInterface;
 import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
 import com.arzuahmed.ticketingsystem.service.PlaceServiceInterface;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,36 +34,38 @@ public class PlaceService implements PlaceServiceInterface {
     private final TicketTypeRepository ticketTypeRepository;
 
     @Override
-    public Place createPlace(PlaceDTO placeDTO) {
+    public PlaceResponse createPlace(PlaceDTO placeDTO) {
         Place place = Mapper.placeMapper(placeDTO);
         if (placeRepository.existsByPlaceNameEqualsIgnoreCase(place.getPlaceName())){
             throw new PlaceAlreadyExistsException("A place with this name already exists.");
         }
-        return placeRepository.save(place);
+        Place savedPlace = placeRepository.save(place);
+        return Mapper.placeResponseMapper(savedPlace);
     }
 
     @Override
-    public Place findPlaceById(Long placeId) {
-        return placeRepository.findById(placeId)
-                .orElseThrow(()-> new PlaceNotFoundException("Place is not found"));
+    public PlaceResponse findPlaceById(Long placeId) {
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
+        return Mapper.placeResponseMapper(place);
     }
 
     @Override
-    public List<Place> findPlaceByName(String placeName) {
-        List<Place> places = placeRepository.findPlaceByPlaceNameEqualsIgnoreCase(placeName);
+    public Page<PlaceResponse> findPlaceByName(String placeName, Pageable pageable) {
+        Page<Place> places = placeRepository.findAllByPlaceNameEqualsIgnoreCase(placeName, pageable);
         if (places.isEmpty()){
             throw new PlacesNotFoundException("Places are not found");
         }
-        return places;
+        return Mapper.placeResponseMapper(places);
     }
 
     @Override
-    public List<Place> findAllPlaces() {
-        List<Place> allPlaces = placeRepository.findAll();
+    public Page<PlaceResponse> findAllPlaces(Pageable pageable) {
+        Page<Place> allPlaces = placeRepository.findAll(pageable);
         if (allPlaces.isEmpty()){
             throw new PlacesNotFoundException("Places not found");
         }
-        return allPlaces;
+       return Mapper.placeResponseMapper(allPlaces);
     }
 
 
@@ -73,7 +81,31 @@ public class PlaceService implements PlaceServiceInterface {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
         placeRepository.delete(place);
-    }}
+    }
+
+    @Override
+    public PlaceWithEventsResponse findEventsByPlaceId(Long placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(() ->
+                new PlaceNotFoundException("Place not found"));
+
+        if (place.getEvents() == null){
+            throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
+        }
+
+       return Mapper.placeWithEventsResponse(place);
+
+    }
+
+
+    public Place findById(Long placeId){
+       return placeRepository.findById(placeId).orElseThrow(()->
+                new PlaceNotFoundException("ErrorCode.PLACE_NOT_FOUND"));
+    }
+
+
+
+}
+
 
 //    @Override
 //    public TicketType addTicketType(TicketTypeDTO ticketTypeDTO) {

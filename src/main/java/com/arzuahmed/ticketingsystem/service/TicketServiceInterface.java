@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TicketServiceInterface {
     void saveAll(List<Ticket> tickets);
-    void buyTicket(Long userId, BuyTicketDTO buyTicketDTO);
+   // void buyTicket(Long userId, BuyTicketDTO buyTicketDTO);
 
-    void buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO);
+    //void buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO);
 }

@@ -11,16 +11,23 @@ import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserDTO;
 import com.arzuahmed.ticketingsystem.model.entity.*;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
-import com.arzuahmed.ticketingsystem.model.response.TicketResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.TicketTypeResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.roleResponse.RoleResponse;
+import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import lombok.Data;
+import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class Mapper {
@@ -216,6 +223,96 @@ public class Mapper {
                 .eventDate(savedEvent.getEventDate())
                 .availableTickets(savedEvent.getAvailableTickets())
                 .tickets(ticketDTOMapper(savedEvent.getTickets()))
+                .build();
+    }
+
+    public static Page<UserResponse> userResponseMapper(Page<User> allUsers) {
+        return allUsers.map(user -> UserResponse
+                .builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .userName(user.getUserName())
+                .roles(roleResponseSetMapper(user.getRoles()))
+                .build());
+    }
+
+    public static Set<RoleResponse> roleResponseSetMapper(Set<Role> roles){
+        return roles.stream()
+                .map(role-> RoleResponse
+                        .builder().role(role.getRole())
+                        .build()).collect(Collectors.toSet());
+    }
+
+    public static UserResponse userResponseMapper(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .userName(user.getUserName())
+                .roles(roleResponseSetMapper(user.getRoles()))
+                .build();
+    }
+
+    public static PlaceResponse placeResponseMapper(Place savedPlace) {
+        return PlaceResponse.builder()
+                .id(savedPlace.getId())
+                .placeName(savedPlace.getPlaceName())
+                .location(savedPlace.getLocation())
+                .seatCapacity(savedPlace.getSeatCapacity())
+                .build();
+    }
+
+    public static Place placeMapper(PlaceResponse placeResponse) {
+        return Place.builder()
+                .placeName(placeResponse.getPlaceName())
+                .seatCapacity(placeResponse.getSeatCapacity())
+                .location(placeResponse.getLocation())
+                .build();
+    }
+
+    public static Page<EventResponseDTO> eventResponsePageMapper(Page<Event> allEvents) {
+        return allEvents.map(event ->
+                EventResponseDTO.builder()
+                        .id(event.getId())
+                        .name(event.getName())
+                        .maxTickets(event.getMaxTickets())
+                        .availableTickets(event.getAvailableTickets())
+                        .eventDate(event.getEventDate())
+                        .description(event.getDescription())
+                        .build());
+    }
+
+    public static Page<PlaceResponse> placeResponseMapper(Page<Place> places) {
+        return places.map(place -> PlaceResponse.builder()
+                .id(place.getId())
+                .placeName(place.getPlaceName())
+                .location(place.getLocation())
+                .seatCapacity(place.getSeatCapacity())
+                .location(place.getLocation()).build());
+
+    }
+
+    public static List<EventResponseDTO> eventResponseListMapper(List<Event> events){
+       return events.stream()
+                .map(event -> EventResponseDTO.builder()
+                        .name(event.getName())
+                        .id(event.getId())
+                        .eventDate(event.getEventDate())
+                        .maxTickets(event.getMaxTickets())
+                        .availableTickets(event.getAvailableTickets())
+                        .description(event.getDescription())
+                        .build())
+                .toList();
+    }
+
+
+    public static PlaceWithEventsResponse placeWithEventsResponse(Place place) {
+        return PlaceWithEventsResponse
+                .builder()
+                .id(place.getId())
+                .placeName(place.getPlaceName())
+                .location(place.getLocation())
+                .seatCapacity(place.getSeatCapacity())
+                .eventResponseDTO(eventResponseListMapper(place.getEvents()))
                 .build();
     }
     /*public static EventResponseDTO eventResponseWithTicketTypeListMapper(Event event){

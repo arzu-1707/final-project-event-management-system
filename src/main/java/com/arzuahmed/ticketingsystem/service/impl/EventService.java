@@ -16,6 +16,7 @@ import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceR
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
@@ -32,6 +33,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,11 +59,6 @@ public class EventService implements EventServiceInterface {
         return eventRepository.findById(eventId).orElseThrow(()-> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
     }
 
-    @Override
-    public Event findEventByName(String eventName) {
-        Event event = eventRepository.findByName(eventName);
-        return existedEvent(event);
-    }
 
     @Override
     @Transactional
@@ -70,7 +68,7 @@ public class EventService implements EventServiceInterface {
             throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS_EXCEPTION);
         }
 
-        Place place = placeService.findPlaceById(eventDTO.getPlaceId());
+        Place place = placeService.findById(eventDTO.getPlaceId());
 
         //MaxTicket sayi seatCapacity-den cox olmamalidir...
         Validate.validateMaxTickets(eventDTO.getMaxTickets(), place.getSeatCapacity());
@@ -100,28 +98,28 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    public List<Event> findAllEvents() {
-        List<Event> allEvents = eventRepository.findAll();
+    public Page<EventResponseDTO> findAllEvents(Pageable pageable) {
+        Page<Event> allEvents = eventRepository.findAll(pageable);
         if (allEvents.isEmpty()){
             throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
         }
-        return allEvents;
+        return Mapper.eventResponsePageMapper(allEvents);
     }
 
     @Override
-    public List<Event> getEventByName(String eventName) {
-        List<Event> events = eventRepository.findEventByNameIsLikeIgnoreCase(eventName);
+    public Page<EventResponseDTO> findEventByName(String eventName, Pageable pageable) {
+        Page<Event> events = eventRepository.findAllByNameEqualsIgnoreCase(eventName, pageable);
         if(events.isEmpty()){
             throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
         }
-        return events;
+        return Mapper.eventResponsePageMapper(events);
     }
 
     @Override
     @Transactional
     public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType) {
 
-        Place place = placeService.findPlaceById(eventTicketTicketType.getEventDTO().getPlaceId());
+        Place place = placeService.findById(eventTicketTicketType.getEventDTO().getPlaceId());
         Event event = Mapper.eventMapper(eventTicketTicketType.getEventDTO());
         event.setPlace(place);
         place.addEvent(event);
@@ -159,7 +157,7 @@ public class EventService implements EventServiceInterface {
     @Transactional
     public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTypeListTicketDTO eventTicketTypeListTicket) {
         Place place
-                = placeService.findPlaceById(eventTicketTypeListTicket.getEventDTO().getPlaceId());
+                = placeService.findById(eventTicketTypeListTicket.getEventDTO().getPlaceId());
 
         Event event = Mapper.eventMapper(eventTicketTypeListTicket.getEventDTO());
 
@@ -233,7 +231,7 @@ public class EventService implements EventServiceInterface {
     public EventAndPlaceResponseDTO addPlaceInEvent(Long eventId, Long placeId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
-        Place place = placeService.findPlaceById(placeId);
+        Place place = placeService.findById(placeId);
         if (place==null){
             throw  new PlaceNotFoundException("Place is not found");
         }
@@ -279,7 +277,9 @@ public class EventService implements EventServiceInterface {
                 new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
       Place place = placeService.findPlaceByNameAndLocation(placeDTO.getPlaceName(), placeDTO.getLocation());
       if (place == null){
-          place = placeService.createPlace(placeDTO);
+          PlaceResponse placeResponse = placeService.createPlace(placeDTO);
+         place = Mapper.placeMapper(placeResponse);
+
       }
         event.setPlace(place);
         place.addEvent(event);
@@ -289,7 +289,7 @@ public class EventService implements EventServiceInterface {
 
     @Override
     public List<Event> findEventsByPlaceId(Long placeId){
-        Place place = placeService.findPlaceById(placeId);
+        Place place = placeService.findById(placeId);
         List<Event> events = place.getEvents();
         if (events.isEmpty()){
             throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);

@@ -1,6 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.response.eventResponse;
 
-import com.arzuahmed.ticketingsystem.model.response.TicketTypeResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;

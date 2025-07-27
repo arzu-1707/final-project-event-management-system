@@ -15,6 +15,8 @@ import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.TicketAndTicketTypeDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,15 +25,13 @@ public interface EventServiceInterface {
 
     Event findEventById(Long eventId);
 
-    Event findEventByName(String eventName);
-
     EventPlaceIdWithTicketsDTO createEventWithTickets(EventWithPlaceIdDTO eventDTO);
 
     void deleteEvent(Long eventId);
 
-    List<Event> findAllEvents();
+    Page<EventResponseDTO> findAllEvents(Pageable pageable);
 
-    List<Event> getEventByName(String eventName);
+    Page<EventResponseDTO> findEventByName(String eventName, Pageable pageable);
 
     EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType);
 

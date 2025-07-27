@@ -24,7 +24,8 @@ import java.util.List;
 @Table(
         name = "event",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"event_date", "place_id"})   // eyni yerde eyni vaxtda 2 event olmamasi ucun
+                @UniqueConstraint(columnNames = {"event_date", "place_id"}), // eyni yerde eyni vaxtda 2 event olmamasi ucun
+                @UniqueConstraint(columnNames = {"name", "event_Date"})  // Eyni vaxtda eyni adli event olmamasi ucun
         }
 )
 @NoArgsConstructor
@@ -41,15 +42,15 @@ public class Event {
     @NotNull
     private String description;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id")
     @JsonManagedReference
+    @JoinColumn(name = "place_id")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})   // Lazy olmaga gore exception atirdi ona gore elave etdim..
     private Place place;
 
-    @Column(unique = true)
-    @Future(message = "Event tarixi kecmisde ola bilmez...")
+    @Column(unique = true , name = "event_Date")
     @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
+    @Future(message = "Event tarixi kecmisde ola bilmez...")
     private LocalDateTime eventDate ;
 
     @OneToMany(mappedBy = "event", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)

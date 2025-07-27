@@ -1,4 +1,4 @@
-package com.arzuahmed.ticketingsystem.model.response;
+package com.arzuahmed.ticketingsystem.model.response.ticketResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

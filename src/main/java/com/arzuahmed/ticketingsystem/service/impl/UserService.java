@@ -2,19 +2,25 @@ package com.arzuahmed.ticketingsystem.service.impl;
 
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UserNotFound;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UsersNotFound;
+import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserPasswordDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserEmailDTO;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
+import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.repository.UserRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.UserServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,37 +30,40 @@ public class UserService implements UserServiceInterface {
     private final UserRepositoryInterface userRepository;
 
     @Override
-    public List<User> findAllUsers() {
-        List<User> allUsers = userRepository.findAll();
+    public Page<UserResponse> findAllUsers(Pageable pageable) {
+        Page<User> allUsers = userRepository.findAll(pageable);
         if (allUsers.isEmpty()){
             throw new UsersNotFound(ErrorCode.USERS_NOT_FOUND);
         }
-        return allUsers;
+        return Mapper.userResponseMapper(allUsers);
     }
 
     @Override
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(()->new UserNotFound(ErrorCode.USER_NOT_FOUND));
+    public UserResponse findUserById(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
+       return Mapper.userResponseMapper(user);
     }
 
     @Override
-    public List<User> findUserByUserName(String userName) {
-        List<User> users = userRepository.findUserByUserName(userName);
+    public Page<UserResponse> findUserByUserName(String userName, Pageable pageable) {
+        Page<User> users = userRepository.findAllByUserName(userName, pageable);
         if (users.isEmpty()){
             throw new UsersNotFound(ErrorCode.USERS_NOT_FOUND);
         }
-        return users;
+        return Mapper.userResponseMapper(users);
     }
 
     @Override
-    public User findUserByEmail(UserEmailDTO userEmailDTO) {
-        return userRepository.findUserByEmail(userEmailDTO.getEmail()).stream()
-                .findFirst().orElseThrow(()-> new UserNotFound(ErrorCode.USER_NOT_FOUND));
+    public UserResponse findUserByEmail(UserEmailDTO userEmailDTO) {
+        User user = userRepository.findUserByEmail(userEmailDTO.getEmail()).stream()
+                .findFirst().orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
+     return Mapper.userResponseMapper(user);
     }
 
     @Override
     public void deleteUser(Long userId) {
-      User user = findUserById(userId);
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFound(ErrorCode.USER_NOT_FOUND));
         userRepository.delete(user);
    }
 

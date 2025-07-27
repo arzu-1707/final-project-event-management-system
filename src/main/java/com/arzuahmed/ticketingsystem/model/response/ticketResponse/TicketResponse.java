@@ -1,4 +1,4 @@
-package com.arzuahmed.ticketingsystem.model.response;
+package com.arzuahmed.ticketingsystem.model.response.ticketResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseObject {
+public class TicketResponse {
     private String message;
-    private Long id;
+    private Integer TicketNo;
 }

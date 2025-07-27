@@ -1,6 +1,8 @@
 package com.arzuahmed.ticketingsystem.repository;
 
 import com.arzuahmed.ticketingsystem.model.entity.Place;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,4 +16,6 @@ public interface PlaceRepositoryInterface extends JpaRepository<Place, Long> {
 
 
     List<Place> findPlaceByPlaceNameAndLocation(String placeName, String location);
+
+    Page<Place> findAllByPlaceNameEqualsIgnoreCase(String placeName, Pageable pageable);
 }

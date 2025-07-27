@@ -5,22 +5,28 @@ import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface PlaceServiceInterface {
 
-    Place createPlace(PlaceDTO placeDTO);
+    PlaceResponse createPlace(PlaceDTO placeDTO);
 
-    Place findPlaceById(Long placeId);
+    PlaceResponse findPlaceById(Long placeId);
 
-    List<Place> findPlaceByName(String placeName);
+    Page<PlaceResponse> findPlaceByName(String placeName, Pageable pageable);
 
-    List<Place> findAllPlaces();
+    Page<PlaceResponse> findAllPlaces(Pageable pageable);
 
     Place findPlaceByNameAndLocation(String placeName, String location);
 
     void deletePlaceById(Long placeId);
 
-  //  TicketType addTicketType(TicketTypeDTO ticketTypeDTO);
+    PlaceWithEventsResponse findEventsByPlaceId(Long placeId);
+
+    //  TicketType addTicketType(TicketTypeDTO ticketTypeDTO);
 }

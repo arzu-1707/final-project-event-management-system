@@ -1,5 +1,7 @@
 package com.arzuahmed.ticketingsystem.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)   // her hansi bir field Null olanda response-de gorsenmir...
 public class CommonResponse<T> {
 
     private String message;
