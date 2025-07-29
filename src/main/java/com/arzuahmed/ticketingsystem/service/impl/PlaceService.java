@@ -37,7 +37,7 @@ public class PlaceService implements PlaceServiceInterface {
     public PlaceResponse createPlace(PlaceDTO placeDTO) {
         Place place = Mapper.placeMapper(placeDTO);
         if (placeRepository.existsByPlaceNameEqualsIgnoreCase(place.getPlaceName())){
-            throw new PlaceAlreadyExistsException("A place with this name already exists.");
+            throw new PlaceAlreadyExistsException(ErrorCode.PLACE_ALREADY_EXISTS_EXCEPTION);
         }
         Place savedPlace = placeRepository.save(place);
         return Mapper.placeResponseMapper(savedPlace);
@@ -46,7 +46,7 @@ public class PlaceService implements PlaceServiceInterface {
     @Override
     public PlaceResponse findPlaceById(Long placeId) {
         Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
+                .orElseThrow(() -> new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
         return Mapper.placeResponseMapper(place);
     }
 
@@ -54,7 +54,7 @@ public class PlaceService implements PlaceServiceInterface {
     public Page<PlaceResponse> findPlaceByName(String placeName, Pageable pageable) {
         Page<Place> places = placeRepository.findAllByPlaceNameEqualsIgnoreCase(placeName, pageable);
         if (places.isEmpty()){
-            throw new PlacesNotFoundException("Places are not found");
+            throw new PlacesNotFoundException(ErrorCode.PLACES_NOT_FOUND);
         }
         return Mapper.placeResponseMapper(places);
     }
@@ -63,7 +63,7 @@ public class PlaceService implements PlaceServiceInterface {
     public Page<PlaceResponse> findAllPlaces(Pageable pageable) {
         Page<Place> allPlaces = placeRepository.findAll(pageable);
         if (allPlaces.isEmpty()){
-            throw new PlacesNotFoundException("Places not found");
+            throw new PlacesNotFoundException(ErrorCode.PLACES_NOT_FOUND);
         }
        return Mapper.placeResponseMapper(allPlaces);
     }
@@ -72,21 +72,21 @@ public class PlaceService implements PlaceServiceInterface {
     @Override
     public Place findPlaceByNameAndLocation(String placeName, String location) {
         return placeRepository.findPlaceByPlaceNameAndLocation(placeName, location)
-                .stream().findFirst().orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
+                .stream().findFirst().orElseThrow(() -> new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
     }
 
     @Override
     public void deletePlaceById(Long placeId)
     {
         Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> new PlaceNotFoundException("Place is not found"));
+                .orElseThrow(() -> new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
         placeRepository.delete(place);
     }
 
     @Override
     public PlaceWithEventsResponse findEventsByPlaceId(Long placeId) {
         Place place = placeRepository.findById(placeId).orElseThrow(() ->
-                new PlaceNotFoundException("Place not found"));
+                new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
 
         if (place.getEvents() == null){
             throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
@@ -99,7 +99,7 @@ public class PlaceService implements PlaceServiceInterface {
 
     public Place findById(Long placeId){
        return placeRepository.findById(placeId).orElseThrow(()->
-                new PlaceNotFoundException("ErrorCode.PLACE_NOT_FOUND"));
+                new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
     }
 
 

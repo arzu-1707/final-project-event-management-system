@@ -2,14 +2,15 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database: postgresql
+    database: POSTGRESQL
     show-sql: true
 
   datasource:
-    username: user
+    username: postgres
     password: 1234
     url: jdbc:postgresql://localhost:5432/postgres
     name: TicketingSystem
+
 
   mail:
     host: smtp.gmail.com
@@ -22,6 +23,9 @@ spring:
           auth: true
           starttls:
             enable: true
+
+
+
 
 #jwt:
 #  secrset: kjhkhdclnladhlnnvqhtr24532yhlij9c-iwijdlnksu9

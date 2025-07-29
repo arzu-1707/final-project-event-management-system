@@ -140,7 +140,7 @@ public class Mapper {
 //                .build();
 //    }
 
-    public static List<TicketResponseDTO> ticketDTOMapper(Event event){
+    public static List<TicketResponseDTO> ticketResponseFromEventMapper(Event event){
         return  event.getTickets().stream()
                 .map(ticket -> TicketResponseDTO.builder()
                         .ticketNo(ticket.getTicketNo())
@@ -149,6 +149,15 @@ public class Mapper {
                         )
                         .status(ticket.getStatus()).build())
                 .toList();
+    }
+    public static List<TicketResponseDTO> ticketResponseFromUserMapper(User user){
+      return user.getTickets()
+                .stream()
+                .map(ticket-> TicketResponseDTO.builder()
+                        .ticketNo(ticket.getTicketNo())
+                        .ticketTypeName(ticket.getTicketType().getTicketTypeName())
+                        .status(ticket.getStatus())
+                        .build()).toList();
     }
 
 //    public static EventResponseDTO eventResponseDTOMapper(Event event){

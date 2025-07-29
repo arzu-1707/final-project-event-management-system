@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CommonResponseError {
 
-    private LocalDateTime timeStamp;
+    @Builder.Default
+    @JsonFormat(pattern = "dd.MM.yyyy  HH:mm")
+    private LocalDateTime timeStamp = LocalDateTime.now();
     private boolean success;
     private int errorCode;
     private String message;

@@ -54,7 +54,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public UserResponse findUserByEmail(UserEmailDTO userEmailDTO) {
+    public UserResponse findUserResponseByEmail(UserEmailDTO userEmailDTO) {
         User user = userRepository.findUserByEmail(userEmailDTO.getEmail()).stream()
                 .findFirst().orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
      return Mapper.userResponseMapper(user);
@@ -65,6 +65,10 @@ public class UserService implements UserServiceInterface {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new UserNotFound(ErrorCode.USER_NOT_FOUND));
         userRepository.delete(user);
+   }
+
+   public User findById(Long userId){
+       return userRepository.findById(userId).orElseThrow(()-> new UserNotFound(ErrorCode.USER_NOT_FOUND));
    }
 
 
@@ -100,21 +104,21 @@ public class UserService implements UserServiceInterface {
 //        return ResponseEntity.ok(newUser);
 //    } */
 //
-    public ResponseEntity<User> updateEmail(Long userId, UserEmailDTO userEmailDTO) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
+    public UserResponse updateEmail(Long userId, UserEmailDTO userEmailDTO) {
+        User user = findById(userId);
         user.setEmail(userEmailDTO.getEmail());
-        userRepository.save(user);
-        return ResponseEntity.ok(user);
+        User savedUser = userRepository.save(user);
+        return Mapper.userResponseMapper(savedUser);
    }
-//
-//
-//    public ResponseEntity<User> updatePassword(Long userId, UserPasswordDTO userPasswordDTO) {
-//        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound("User is not found"));
-//        user.setPassword(userPasswordDTO.getPassword());
-//        userRepository.save(user);
-//        return ResponseEntity.ok(user);
-//    }
-//
+
+
+    public UserResponse updatePassword(Long userId, UserPasswordDTO userPasswordDTO) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(userPasswordDTO.getPassword());
+        User savedUser = userRepository.save(user);
+      return   Mapper.userResponseMapper(savedUser);
+    }
+
 //
 //    //public Page<Event> getAllEvents(Pageable pageable) {
 //      //  return userRepository.get
@@ -127,7 +131,8 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public void save(User user){
-        userRepository.save(user);
+    public User save(User user){
+        return userRepository.save(user);
     }
+
 }

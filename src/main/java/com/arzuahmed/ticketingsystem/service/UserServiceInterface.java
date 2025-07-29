@@ -12,9 +12,9 @@ public interface UserServiceInterface {
     Page<UserResponse> findAllUsers(Pageable pageable);
     UserResponse findUserById(Long userId);
     Page<UserResponse> findUserByUserName(String userName, Pageable pageable);
-    UserResponse findUserByEmail(UserEmailDTO userEmailDTO);
+    UserResponse findUserResponseByEmail(UserEmailDTO userEmailDTO);
     void deleteUser(Long userId);
-    void save(User user);
+    User save(User user);
 //    //User addUserRole(Long userId, RoleDTO role);
 
 }

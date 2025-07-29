@@ -5,6 +5,7 @@ import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
 import com.arzuahmed.ticketingsystem.service.TicketServiceInterface;
@@ -44,7 +45,7 @@ public class TicketTypeService implements TicketTypeServiceInterface {
     @Override
     public TicketType findTicketTypeById(Long ticketTypeId) {
        return   ticketTypeRepository.findById(ticketTypeId)
-                 .orElseThrow(()-> new TicketTypeNotFound("Ticket Type is not found"));
+                 .orElseThrow(()-> new TicketTypeNotFound(ErrorCode.TICKET_TYPE_NOT_FOUND));
     }
 
 }

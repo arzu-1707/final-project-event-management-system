@@ -1,7 +1,13 @@
 package com.arzuahmed.ticketingsystem.exception.placeExceptions;
 
-public class PlaceNotFoundException extends RuntimeException{
-    public PlaceNotFoundException(String message){
-        super(message);
+import com.arzuahmed.ticketingsystem.exception.CustomException;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
+
+public class PlaceNotFoundException extends CustomException {
+    public PlaceNotFoundException(ErrorCode errorCode) {
+        super(errorCode);
+    }
+    public PlaceNotFoundException(ErrorCode errorCode, String message){
+        super(errorCode,message);
     }
 }

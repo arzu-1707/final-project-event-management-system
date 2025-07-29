@@ -8,9 +8,13 @@ import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketsResponse;
+import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.service.impl.CommonService;
 import com.arzuahmed.ticketingsystem.service.impl.EventService;
 import com.arzuahmed.ticketingsystem.service.impl.PlaceService;
+import com.arzuahmed.ticketingsystem.service.impl.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
@@ -30,13 +34,18 @@ public class CommonController {
 
     private final EventService eventService;
     private final PlaceService placeService;
+    private final CommonService commonService;
+    private final TicketService ticketService;
 
 
-    //register
-    //@PostMapping("/register")
-   // public ResponseEntity<User> register(@RequestBody UserDTO userDTO){
-     //  return ResponseEntity.ok(commonService.register(userDTO));
-    //}
+    //register   +++Postman+++
+    @PostMapping("/register")
+    public ResponseEntity<CommonResponse<UserResponse>> register(@RequestBody UserDTO userDTO){
+        UserResponse registeredUser = commonService.register(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CommonResponse.success(registeredUser.getUserName() + " adli istifadeci ugurla qeydiyyatdan kecdi",
+                        registeredUser));
+    }
 
     //login
 
@@ -66,6 +75,8 @@ public class CommonController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(CommonResponse.success(eventName +" adli Event-lar tapildi..", events));
     }
+
+
 //----------------------------------------------------------------------------------------------------------
 
 
@@ -99,14 +110,31 @@ public class CommonController {
     }
 
 
-//------------------------------------------Place ile bagli------------------------------------------------------
-    //umumi placelerde kecirilecek tedbirleri gore biler +++Postman++++
+    //PlaceId-e uygun placelerde kecirilecek tedbirleri gore biler +++Postman++++
     @GetMapping("/places/{placeId}/events")
     public ResponseEntity<CommonResponse<PlaceWithEventsResponse>> findAllEventsByPlaceId(@PathVariable Long placeId){
         PlaceWithEventsResponse place = placeService.findEventsByPlaceId(placeId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(CommonResponse.success("Ugurla heyata kecirildi...", place));
     }
+
+
+
+    //------------------------------------------Ticket ile bagli------------------------------------------------------
+
+    //Event-a aid biletleri gormek  +++Postman++++
+    @GetMapping("/events/{eventId}/tickets")
+    public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> findAllTickets(
+            @PathVariable Long eventId)
+    {
+        List<TicketResponseDTO> tickets = ticketService.findAllTicketsFromEvent(eventId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Ugurla getirildi",
+                        tickets));
+    }
+
+
+    //Available Biletleri gormek
 
 
 }

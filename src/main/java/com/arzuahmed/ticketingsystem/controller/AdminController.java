@@ -75,7 +75,7 @@ public class AdminController {
     //email-e gore user axtarisi    ++++++Postman++++++
     @GetMapping("/user-email")
     public ResponseEntity<CommonResponse<UserResponse>> getUserByUserEmail(@RequestBody UserEmailDTO userEmailDTO){
-        UserResponse user = userService.findUserByEmail(userEmailDTO);
+        UserResponse user = userService.findUserResponseByEmail(userEmailDTO);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(CommonResponse.success(userEmailDTO.getEmail()+ " emaile sahib istifadeci tapildi",
                         user));
@@ -210,13 +210,9 @@ public class AdminController {
 //------------------------------------------------------------------------------------------------------------
 
 
-//------------------------------------------- TicketType ile bagli----------------------------------------------
+//------------------------------------------- Ticket ile bagli----------------------------------------------
 
-    //TicketType elave etmek
-//    @PostMapping("/add-ticket-types")
-//    public ResponseEntity<TicketType> addTicketType(@RequestBody TicketTypeDTO ticketTypeDTO){
-//        return ResponseEntity.ok(placeService.addTicketType(ticketTypeDTO));
-//    }
+
 
 
 }

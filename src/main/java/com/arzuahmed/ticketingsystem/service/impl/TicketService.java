@@ -2,16 +2,24 @@ package com.arzuahmed.ticketingsystem.service.impl;
 
 import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketAlreadySoldException;
 import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketNotAvailable;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketsNotFoundException;
+import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.BuyTicketDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.BuyTicketsDTO;
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.User;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketsResponse;
 import com.arzuahmed.ticketingsystem.repository.TicketRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.TicketServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,6 +41,13 @@ public class TicketService implements TicketServiceInterface {
     @Override
     public void saveAll(List<Ticket> tickets) {
         ticketRepository.saveAll(tickets);
+    }
+
+    @Override
+    public List<TicketResponseDTO> findAllTickets(Long userId) {
+        User user = userService.findById(userId);
+        List<Ticket> tickets = user.getTickets();
+       return Mapper.ticketResponseListMapper(tickets);
     }
 
 
@@ -71,52 +86,67 @@ public class TicketService implements TicketServiceInterface {
 //
 //    }
 
-//    @Override
-//    @Transactional
-//    public void buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO) {
-//        User user = userService.findUserById(userId);
-//        Event event = eventService.findEventById(buyTicketsDTO.getEventId());
-//        List<Integer> ticketNo = buyTicketsDTO.getTicketNo();
-//        List<Ticket> tickets = new ArrayList<>();
-//        for (Integer ticket : ticketNo){
-//            List<Ticket> foundTickets = ticketRepository.findAllByEventAndTicketNoAndStatus(event, ticket, STATUS.AVAILABLE);
-//              tickets.addAll(foundTickets);
-//        }
-//
-//        if (ticketNo.size()!= tickets.size()){
-//            throw new TicketAlreadySoldException("Ticket Already sold");
-//        }
-//
-//        for (Ticket ticket : tickets) {
-//            ticket.setPurchaseDate(LocalDateTime.now());
-//            user.addTicket(ticket);
-//            ticket.setStatus(STATUS.SOLD);
-//        }
-//
-//        String ticketNumber = ticketNo.stream()
-//                .map(Object::toString)
-//                .collect(Collectors.joining(", "));
-//
-//        String body = """
-//                Salam %s
-//
-//                Siz biletlerinizi uğurla aldınız!
-//
-//                Tedbir  :  %s
-//                Biletin nomresi :  %s
-//                Tedbirin kecirileceyi yer: %s
-//                Tarix:   %s
-//
-//
-//                Hormetle Ticketing System!""".formatted(user.getUserName(), event.getName(), ticketNumber,
-//                event.getPlace().getPlaceName(),
-//                event.getEventDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy,   HH:mm")));
-//
-//        emailService.sendEmail(user.getEmail(), "Biletleriniz Ugurla alinmisdir!!!", body);
-//
-//        ticketRepository.saveAll(tickets);
-//        userService.save(user);
-//    }
+    @Override
+    @Transactional
+    public List<TicketResponseDTO> buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO) {
+        User user = userService.findById(userId);
+        Event event = eventService.findEventById(buyTicketsDTO.getEventId());
+        List<Integer> ticketNo = buyTicketsDTO.getTicketNo();
+        List<Ticket> tickets = new ArrayList<>();
+        for (Integer ticket : ticketNo){
+            List<Ticket> foundTickets = ticketRepository
+                    .findAllByEventAndTicketNoAndStatus(event, ticket, STATUS.AVAILABLE);
+              tickets.addAll(foundTickets);
+        }
+
+        if (ticketNo.size()!= tickets.size()){
+            throw new TicketAlreadySoldException(ErrorCode.TICKET_ALREADY_SOLD);
+        }
+
+        for (Ticket ticket : tickets) {
+            ticket.setPurchaseDate(LocalDateTime.now());
+            user.addTicket(ticket);
+            ticket.setStatus(STATUS.SOLD);
+        }
+        int count = event.getAvailableTickets() - tickets.size();
+        event.setAvailableTickets(count);
+
+        String ticketNumber = ticketNo.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+
+        String body = """
+                Salam %s
+
+                Siz biletlerinizi uğurla aldınız!
+
+                Tedbir  :  %s
+                Biletin nomresi :  %s
+                Tedbirin kecirileceyi yer: %s
+                Tarix:   %s
+
+
+                Hormetle Ticketing System!""".formatted(user.getUserName(),
+                event.getName(), ticketNumber,
+                event.getPlace().getPlaceName(),
+                event.getEventDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy,   HH:mm")));
+
+        emailService.sendEmail(user.getEmail(), "Biletleriniz Ugurla alinmisdir!!!", body);
+
+        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+        userService.save(user);
+       return Mapper.ticketResponseListMapper(savedTickets);
+    }
+
+    @Override
+    public List<TicketResponseDTO> findAllTicketsFromEvent(Long eventId) {
+        Event event = eventService.findEventById(eventId);
+        List<Ticket> tickets = event.getTickets();
+        if (tickets.isEmpty()){
+            throw new TicketsNotFoundException(ErrorCode.TICKETS_NOT_FOUND);
+        }
+        return Mapper.ticketResponseListMapper(tickets);
+    }
 
 
 }

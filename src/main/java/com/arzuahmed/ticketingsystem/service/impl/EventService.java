@@ -65,7 +65,7 @@ public class EventService implements EventServiceInterface {
     public EventPlaceIdWithTicketsDTO createEventWithTickets(EventWithPlaceIdDTO eventDTO) {
         //eyni tarixe cox event elave etmemek ucun bunu yoxlayiram
         if (eventRepository.existsEventsByEventDate(eventDTO.getEventDate())){
-            throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS_EXCEPTION);
+            throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS);
         }
 
         Place place = placeService.findById(eventDTO.getPlaceId());
@@ -221,7 +221,7 @@ public class EventService implements EventServiceInterface {
     public EventResponseDTO createEvent(EventDTO eventDTO) {
         Event event = Mapper.eventMapper(eventDTO);
        if (eventRepository.existsEventsByEventDate(eventDTO.getEventDate())){
-           throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS_EXCEPTION);
+           throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS);
         }
         Event savedEvent = eventRepository.save(event);
        return Mapper.eventResponseMapper(savedEvent);
@@ -233,7 +233,7 @@ public class EventService implements EventServiceInterface {
                 .orElseThrow(() -> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
         Place place = placeService.findById(placeId);
         if (place==null){
-            throw  new PlaceNotFoundException("Place is not found");
+            throw  new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND);
         }
         event.setPlace(place);
         place.addEvent(event);
