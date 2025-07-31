@@ -13,6 +13,7 @@ import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.*;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UserAlreadyExistException;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UserNotFound;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UsersNotFound;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponseError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsersNotFound.class)
     public ResponseEntity<CommonResponseError> handlerUsersNotFoundException(
-            UserNotFound ex, HttpServletRequest request
+            UsersNotFound ex, HttpServletRequest request
     )
     {
         CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),
@@ -64,7 +65,7 @@ public class GlobalExceptionHandler {
 
 @ExceptionHandler(EventNotFoundException.class)
 public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
-        EventExistsException ex, HttpServletRequest request
+        EventNotFoundException ex, HttpServletRequest request
 )    {
     CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),
             ex.getMessage(), request.getRequestURI());
@@ -84,7 +85,7 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
 @ExceptionHandler(EventExistsException.class)
     public ResponseEntity<CommonResponseError> handlerEventExistsException(EventExistsException ex,
                                                                            HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
 }
 
@@ -97,21 +98,21 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
     @ExceptionHandler(PlaceAlreadyExistsException.class)
     public ResponseEntity<CommonResponseError> handlePlaceAlreadyExistsException(PlaceAlreadyExistsException ex,
                                                                                  HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(PlaceNotFoundException.class)
     public ResponseEntity<CommonResponseError> handlePlaceNotFoundException(PlaceNotFoundException ex,
                                                                             HttpServletRequest request){
-        CommonResponseError error =CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error =CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PlacesNotFoundException.class)
     public ResponseEntity<CommonResponseError> handlePlacesNotFoundException(PlacesNotFoundException ex,
                                                                              HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new  ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -123,28 +124,28 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
     @ExceptionHandler(TicketAlreadySoldException.class)
     public ResponseEntity<CommonResponseError> handleTicketAlreadySoldException(TicketAlreadySoldException ex,
                                                                                 HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TicketNotAvailable.class)
     public ResponseEntity<CommonResponseError> handleTicketNotAvailableException(TicketNotAvailable ex,
                                                                                  HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TicketNotFoundException.class)
     public ResponseEntity<CommonResponseError> handleTicketNotFoundException(TicketNotFoundException ex,
                                                                         HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TicketsNotFoundException.class)
     public ResponseEntity<CommonResponseError> handleTicketsNotFoundException(TicketsNotFoundException ex,
                                                                               HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -157,14 +158,14 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
     @ExceptionHandler(TicketTypeAlreadyExistException.class)
     public ResponseEntity<CommonResponseError> handleTicketTypeAlreadyExistException(TicketTypeAlreadyExistException ex,
                                                                                      HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TicketTypeNotFound.class)
     public ResponseEntity<CommonResponseError> handleTicketTypeNotFoundException(TicketTypeNotFound ex,
                                                                                  HttpServletRequest request){
-        CommonResponseError error =CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error =CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -177,22 +178,48 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
     @ExceptionHandler(CapacityExceededException.class)
     public ResponseEntity<CommonResponseError> handleCapacityExceededException(CapacityExceededException ex,
                                                                                HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MaxTicketLimitViolationException.class)
     public ResponseEntity<CommonResponseError> handleMaxTicketsLimitViolationException(MaxTicketLimitViolationException ex,
                                                                                        HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TicketCountMismatchException.class)
     public ResponseEntity<CommonResponseError> handleTicketCountMismatchException(TicketCountMismatchException ex,
                                                                                   HttpServletRequest request){
-        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(), request.getRequestURI());
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+
+
+//----------------------------------------------------Common exceptions------------------------------------------------
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<CommonResponseError> handleGlobalException(
+            Exception ex, HttpServletRequest request) {
+        CommonResponseError errorResponse = CommonResponseError.of(
+                ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<CommonResponseError> handleNullPointerException(
+            NullPointerException ex, HttpServletRequest request
+    ){
+        CommonResponseError commonResponseError = CommonResponseError.of(
+                ErrorCode.NULL_POINTER_EXCEPTION.getCode(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(commonResponseError, HttpStatus.NOT_FOUND);
     }
 
 

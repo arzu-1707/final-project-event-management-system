@@ -1,7 +1,7 @@
-package com.arzuahmed.ticketingsystem.model.response.eventResponse;
+package com.arzuahmed.ticketingsystem.model.wrapper;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,20 +14,34 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class EventResponseDTO {
+@NoArgsConstructor
+public class EventAndPlaces {
 
-    private Long id;
+    private Long eventId;
+
+    @NotBlank
+    @NotNull
+    @NotEmpty
     private String name;
 
+    @NotBlank
+    @NotEmpty
+    @NotNull
     private String description;
 
-
-    @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
+    @Column(unique = true)
+   @JsonFormat(pattern ="dd.MM.yyyy HH:mm")
     private LocalDateTime eventDate;
 
     private Integer  maxTickets;
 
     private Integer availableTickets;
+
+    private Long placeId;
+
+    private String placeName;
+
+    private String location;
+
 }

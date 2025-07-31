@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.service.impl;
 
+
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventExistsException;
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventsNotFoundException;
@@ -8,22 +9,20 @@ import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
-import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
-import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketCreateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
-import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
-import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
+import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventAndPlaces;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
 import com.arzuahmed.ticketingsystem.repository.EventRepositoryInterface;
 import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
@@ -31,15 +30,19 @@ import com.arzuahmed.ticketingsystem.service.EventServiceInterface;
 import com.arzuahmed.ticketingsystem.validate.Validate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventService implements EventServiceInterface {
@@ -55,46 +58,22 @@ public class EventService implements EventServiceInterface {
     private TicketTypeService ticketTypeService;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Event findEventById(Long eventId) {
-        return eventRepository.findById(eventId).orElseThrow(()-> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
+        return eventRepository.findById(eventId).orElseThrow(()->
+                new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
     }
-
 
     @Override
     @Transactional
-    public EventPlaceIdWithTicketsDTO createEventWithTickets(EventWithPlaceIdDTO eventDTO) {
-        //eyni tarixe cox event elave etmemek ucun bunu yoxlayiram
-        if (eventRepository.existsEventsByEventDate(eventDTO.getEventDate())){
-            throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS);
-        }
-
-        Place place = placeService.findById(eventDTO.getPlaceId());
-
-        //MaxTicket sayi seatCapacity-den cox olmamalidir...
-        Validate.validateMaxTickets(eventDTO.getMaxTickets(), place.getSeatCapacity());
-
-        Event event = Mapper.eventMapper(eventDTO);
-        event.setPlace(place);
-        place.addEvent(event);
-
-        Event savedEvent = eventRepository.save(event);
-        List<Ticket> tickets = savedEvent.addTickets();
-
-        ticketService.saveAll(tickets);
-
-        return Mapper.eventPlaceIdWithTicketsMapper(savedEvent);
-    }
-
-
-
-    @Override
-    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteEvent(Long eventId) {
         Event event = findEventById(eventId);
         Place place = event.getPlace();
         if (place != null){
         place.removeEvent(event);}
         eventRepository.delete(existedEvent(event));
+        log.info("Event is deleted. EventId: {} and EventName: {} ", event.getId(), event.getName());
     }
 
     @Override
@@ -117,6 +96,7 @@ public class EventService implements EventServiceInterface {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType) {
 
         Place place = placeService.findById(eventTicketTicketType.getEventDTO().getPlaceId());
@@ -155,6 +135,7 @@ public class EventService implements EventServiceInterface {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTypeListTicketDTO eventTicketTypeListTicket) {
         Place place
                 = placeService.findById(eventTicketTypeListTicket.getEventDTO().getPlaceId());
@@ -201,6 +182,7 @@ public class EventService implements EventServiceInterface {
 
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Event existedEvent(Event event){
         if (event == null) {
             throw new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND);
@@ -209,6 +191,7 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Event existedEventById(Long eventId){
         Event event = eventRepository.findEventById(eventId);
         if (event == null) {
@@ -218,6 +201,7 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public EventResponseDTO createEvent(EventDTO eventDTO) {
         Event event = Mapper.eventMapper(eventDTO);
        if (eventRepository.existsEventsByEventDate(eventDTO.getEventDate())){
@@ -228,12 +212,14 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public EventAndPlaceResponseDTO addPlaceInEvent(Long eventId, Long placeId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
         Place place = placeService.findById(placeId);
         if (place==null){
-            throw  new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND);
+            new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND);
         }
         event.setPlace(place);
         place.addEvent(event);
@@ -244,6 +230,8 @@ public class EventService implements EventServiceInterface {
 
 
     @Override
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public EventAndTicketsResponseDTO addTicketType(Long eventId, List<TicketTypeDTO> ticketTypeDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() ->
                 new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
@@ -272,13 +260,15 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public EventAndPlaceResponseDTO updatePlace(Long eventId, PlaceDTO placeDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(()->
                 new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
       Place place = placeService.findPlaceByNameAndLocation(placeDTO.getPlaceName(), placeDTO.getLocation());
       if (place == null){
-          PlaceResponse placeResponse = placeService.createPlace(placeDTO);
-         place = Mapper.placeMapper(placeResponse);
+          placeService.createPlace(placeDTO);
+          place = placeService.findPlaceByNameAndLocation(placeDTO.getPlaceName(), placeDTO.getLocation());
 
       }
         event.setPlace(place);
@@ -288,6 +278,7 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Event> findEventsByPlaceId(Long placeId){
         Place place = placeService.findById(placeId);
         List<Event> events = place.getEvents();
@@ -298,10 +289,56 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public EventResponseDTO updateEventDate(Long eventId, EventDateDTO eventDateDTO) {
         Event event = findEventById(eventId);
         event.setEventDate(eventDateDTO.getEventDate());
        return Mapper.eventResponseMapper(event);
+    }
+
+    @Override
+    public List<Event> findEventByName(String name) {
+      List<Event> events =  eventRepository.findEventByNameIsLikeIgnoreCase(name);
+      if (events.isEmpty()){
+          throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
+      }
+      return events;
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public Integer findCountAvailableTickers(Long eventId) {
+        Event event = findEventById(eventId);
+        return event.getAvailableTickets();
+    }
+
+    @Override
+    public List<TicketResponseDTO> findAvailableTickets(long eventId) {
+        Event event = findEventById(eventId);
+        List<Ticket> tickets = event.getTickets()
+                .stream()
+                .filter(ticket -> ticket.getStatus().equals(STATUS.AVAILABLE))
+                .toList();
+
+      return Mapper.ticketResponseDTOMapper(tickets);
+    }
+
+    @Override
+    public List<EventAndPlaces> findEventWithPlaces(String eventName) {
+
+        List<Event> events = eventRepository.findEventsByNameIgnoreCase(eventName);
+
+       return events.stream()
+                        .map(event -> Mapper.eventAndPlacesMapper(event))
+                                .toList();
+    }
+
+
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteAllEvents() {
+        eventRepository.deleteAll();
     }
 
 

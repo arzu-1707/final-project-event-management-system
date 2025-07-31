@@ -7,15 +7,17 @@ import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserEmailDTO;
-import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
 import com.arzuahmed.ticketingsystem.service.impl.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -94,7 +96,7 @@ public class AdminController {
 
     //----------------------------------------Event ile bagli--------------------------------------------------
 
-    //Event Yaratmaq   ++++++ Postman+++
+    //Event Yaratmaq   ++++++ Postman+++    security
     @PostMapping("/create/event")
     public ResponseEntity<CommonResponse<EventResponseDTO>> createEvent(@RequestBody @Valid EventDTO eventDTO){
        EventResponseDTO eventResponseDTO = eventService.createEvent(eventDTO);
@@ -103,7 +105,7 @@ public class AdminController {
     }
 
 
-    //Event Silmek  ++++++Postman+++
+    //Event Silmek  ++++++Postman+++  security
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<CommonResponse> deleteEventById(@PathVariable Long eventId){
         eventService.deleteEvent(eventId);
@@ -111,8 +113,16 @@ public class AdminController {
                 + " olan Event ugurla silinmisdir...", null));
     }
 
+    //Butun eventleri silme   Security
+    @DeleteMapping("/all-events")
+    public ResponseEntity<CommonResponse> deleteAllEvents(){
+        eventService.deleteAllEvents();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Butun Eventler ugurla silindi..."));
+    }
 
-    //Yaranmis event-a movcud place-i elave etmek  ++++Postman+++
+
+    //Yaranmis event-a movcud place-i elave etmek  ++++Postman+++   security
     @PatchMapping("/events/{eventId}")
     public ResponseEntity<CommonResponse<EventAndPlaceResponseDTO>> addPlaceInEvent(@PathVariable Long eventId,
                                                                                     @RequestBody PlaceIdDTO placeIdDTO){
@@ -123,7 +133,7 @@ public class AdminController {
                         + " olan Place ugurla elave edildi..",eventAndPlaceResponseDTO));
     }
 
-    //Event-in Place deyismek (movcud bir place ile)   ++++Postman+++
+    //Event-in Place deyismek (movcud bir place ile)   ++++Postman+++   security
     @PutMapping("/events/{eventId}/update-place")
     public ResponseEntity<CommonResponse<EventAndPlaceResponseDTO>> updatePlaceInEvent(@PathVariable Long eventId,
                                                                @RequestBody PlaceDTO placeDTO){
@@ -137,7 +147,7 @@ public class AdminController {
     }
 
 
-    //Event tarixini deyisdirmek    +++++Postman+++
+    //Event tarixini deyisdirmek    +++++Postman+++  Security
     @PatchMapping("/events/{eventId}/update-event-date")
     public ResponseEntity<CommonResponse<EventResponseDTO>> updateEventDate(@PathVariable Long eventId,
                                                             @RequestBody @Valid EventDateDTO eventDateDTO){
@@ -147,7 +157,7 @@ public class AdminController {
     }
 
 
-    //Event, TicketType (Tekce bir tipe uygun.. mes VIP) ve ticket yaradilmasi   +++Postman+++++
+    //Event, TicketType (Tekce bir tipe uygun.. mes VIP) ve ticket yaradilmasi   +++Postman+++++  security
     @PostMapping("/create/event/ticket/ticket-type")
     public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>>  createEventTicketTicketType(@RequestBody
                                                                          EventTicketTicketTypeDTO eventTicketTicketType){
@@ -158,7 +168,7 @@ public class AdminController {
                         event));
     }
 
-    //Event, TicketType (VIP, Regular ve s ucun) ve ticketler      ++++Postman+++
+    //Event, TicketType (VIP, Regular ve s ucun) ve ticketler      ++++Postman+++  security
    @PostMapping("/create/event/tickets/ticketType")
     public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> createEventTicketTicketType(@RequestBody EventTicketTypeListTicketDTO eventTicketTypeListTicket){
 
@@ -168,14 +178,25 @@ public class AdminController {
                 .body(CommonResponse.success("Event biletler ile birlikde ugurla yaradildi...",event));
     }
 
-    //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +++++Postman++
+    //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +++++Postman++  security
     @PatchMapping("/events/{eventId}/add-tickets-ticketType")
-    public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> addTicketsAndTicketTypeInEvent(@PathVariable Long eventId,
-                                                                           @RequestBody List<TicketTypeDTO> ticketTypeDTO){
+    public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> addTicketsAndTicketTypeInEvent(
+            @PathVariable Long eventId,
+            @RequestBody List<TicketTypeDTO> ticketTypeDTO){
         EventAndTicketsResponseDTO event = eventService.addTicketType(eventId, ticketTypeDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(CommonResponse.success("Evente biletler elave edildi...",event));
     }
+
+    //Event-in Available ticket sayina baxmaq ucun  ++Postman++++  security
+    @GetMapping("/events/{eventId}/available-ticket/count")
+    public ResponseEntity<CommonResponse<Integer>> findCountAvailableTickets(@PathVariable Long eventId){
+       Integer count = eventService.findCountAvailableTickers(eventId);
+       return ResponseEntity.status(HttpStatus.OK)
+               .body(CommonResponse.success("Movcud bilet sayi: " + count, count));
+    }
+
+
 
 //----------------------------------------------------------------------------------------------------------------
 

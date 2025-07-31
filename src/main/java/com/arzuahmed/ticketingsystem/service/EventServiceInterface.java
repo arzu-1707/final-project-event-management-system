@@ -9,23 +9,23 @@ import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceR
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
+import com.arzuahmed.ticketingsystem.model.wrapper.*;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
-import com.arzuahmed.ticketingsystem.model.wrapper.TicketAndTicketTypeDTO;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface EventServiceInterface {
 
     Event findEventById(Long eventId);
-
-    EventPlaceIdWithTicketsDTO createEventWithTickets(EventWithPlaceIdDTO eventDTO);
 
     void deleteEvent(Long eventId);
 
@@ -52,4 +52,16 @@ public interface EventServiceInterface {
     List<Event> findEventsByPlaceId(Long placeId);
 
     EventResponseDTO updateEventDate(Long eventId, EventDateDTO eventDateDTO);
+
+    List<Event> findEventByName(String name);
+
+
+    Integer findCountAvailableTickers(Long eventId);
+
+    List<TicketResponseDTO> findAvailableTickets(long eventId);
+
+    List<EventAndPlaces> findEventWithPlaces(String eventName);
+
+
+    void deleteAllEvents();
 }

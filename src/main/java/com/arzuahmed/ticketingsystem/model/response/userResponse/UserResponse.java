@@ -27,4 +27,7 @@ public class UserResponse {
 
     private Set<RoleResponse> roles;
 
+    private String accessToken;
+    private String refreshToken;
+
 }

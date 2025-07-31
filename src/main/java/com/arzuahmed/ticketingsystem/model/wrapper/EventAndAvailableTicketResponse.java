@@ -1,28 +1,21 @@
-package com.arzuahmed.ticketingsystem.model.response.eventResponse;
+package com.arzuahmed.ticketingsystem.model.wrapper;
 
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class EventResponseDTO {
-
-    private Long id;
+public class EventAndAvailableTicketResponse {
+    @NotNull
+    @NotEmpty
+    @NotBlank
     private String name;
 
     private String description;
-
 
     @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
     private LocalDateTime eventDate;
@@ -30,4 +23,6 @@ public class EventResponseDTO {
     private Integer  maxTickets;
 
     private Integer availableTickets;
+
+    private List<TicketTypeResponseDTO> tickets;
 }

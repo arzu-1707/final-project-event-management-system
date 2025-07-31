@@ -9,17 +9,22 @@ import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.BuyTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Ticket;
+import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketsResponse;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventAndAvailableTicketResponse;
 import com.arzuahmed.ticketingsystem.repository.TicketRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.TicketServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,17 +44,18 @@ public class TicketService implements TicketServiceInterface {
     private final EmailService emailService;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void saveAll(List<Ticket> tickets) {
         ticketRepository.saveAll(tickets);
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public List<TicketResponseDTO> findAllTickets(Long userId) {
         User user = userService.findById(userId);
         List<Ticket> tickets = user.getTickets();
        return Mapper.ticketResponseListMapper(tickets);
     }
-
 
 
 //    @Override
@@ -88,6 +94,7 @@ public class TicketService implements TicketServiceInterface {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public List<TicketResponseDTO> buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO) {
         User user = userService.findById(userId);
         Event event = eventService.findEventById(buyTicketsDTO.getEventId());
@@ -147,6 +154,8 @@ public class TicketService implements TicketServiceInterface {
         }
         return Mapper.ticketResponseListMapper(tickets);
     }
+
+
 
 
 }

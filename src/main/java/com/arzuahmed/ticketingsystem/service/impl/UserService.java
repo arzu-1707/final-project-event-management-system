@@ -13,16 +13,19 @@ import com.arzuahmed.ticketingsystem.repository.UserRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.UserServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserServiceInterface {
@@ -30,6 +33,7 @@ public class UserService implements UserServiceInterface {
     private final UserRepositoryInterface userRepository;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserResponse> findAllUsers(Pageable pageable) {
         Page<User> allUsers = userRepository.findAll(pageable);
         if (allUsers.isEmpty()){
@@ -39,12 +43,14 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse findUserById(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
        return Mapper.userResponseMapper(user);
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserResponse> findUserByUserName(String userName, Pageable pageable) {
         Page<User> users = userRepository.findAllByUserName(userName, pageable);
         if (users.isEmpty()){
@@ -54,6 +60,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse findUserResponseByEmail(UserEmailDTO userEmailDTO) {
         User user = userRepository.findUserByEmail(userEmailDTO.getEmail()).stream()
                 .findFirst().orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
@@ -61,10 +68,12 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new UserNotFound(ErrorCode.USER_NOT_FOUND));
         userRepository.delete(user);
+        log.info("User is deleted. User Id: {}, User Name: {}", user.getId(), user.getUserName());
    }
 
    public User findById(Long userId){
@@ -72,21 +81,8 @@ public class UserService implements UserServiceInterface {
    }
 
 
-//   // public ResponseEntity<User> register(UserDTO userDTO) {
-//
-//      /*  User user = User.builder()
-//                .name(userDTO.getName())
-//                .email(userDTO.getEmail())
-//                .role(userDTO.getRole())
-//                .password(userDTO.getPassword())
-//                .build();
-//
-//        return ResponseEntity.ok(userRepository.save(user));
-//        */
-//   // }
-//
-//
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Ticket> findAllTickets(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
         return user.getTickets();

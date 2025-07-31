@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventDateDTO {
-    @JsonFormat(pattern = "yyyy.MM.dd  HH:mm")
+    @JsonFormat(pattern = "dd.MM.yyyy HH:mm")
     @Future(message = "Event tarixi kecmisde ola bilmez...")
     private LocalDateTime eventDate;
 }

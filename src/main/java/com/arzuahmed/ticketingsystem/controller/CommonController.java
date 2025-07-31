@@ -1,16 +1,22 @@
 package com.arzuahmed.ticketingsystem.controller;
 
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserDTO;
+import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserLoginRequest;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketsResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
+import com.arzuahmed.ticketingsystem.model.response.userResponse.UserTokenResponse;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventAndAvailableTicketResponse;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventAndPlaces;
 import com.arzuahmed.ticketingsystem.service.impl.CommonService;
 import com.arzuahmed.ticketingsystem.service.impl.EventService;
 import com.arzuahmed.ticketingsystem.service.impl.PlaceService;
@@ -20,11 +26,14 @@ import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -48,11 +57,20 @@ public class CommonController {
     }
 
     //login
+    @PostMapping("/login")
+    public ResponseEntity<UserTokenResponse> login(@RequestBody UserLoginRequest userLoginRequest){
+        UserTokenResponse login = commonService.login(userLoginRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(login);
+    }
+
+
+    //tarix araliginda eventler
 
 
 //----------------------------------------Event ile bagli------------------------------------
 
-    //Eventleri gor   ++++Postman++++++
+    //Eventleri gor   ++++Postman++++++       ++++++++++++++SECURITY
     @GetMapping("/events")
     public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findAllEvents(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -64,7 +82,17 @@ public class CommonController {
                 .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi", events));
     }
 
-    //Eventleri adlarina gore axtar  +++Postman+++++++
+
+    //Eventlerin place-lerine elde etmek  ++Postman++=
+    @GetMapping("/events/{eventName}/places")
+    public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventWithPlaces(@PathVariable String eventName){
+        List<EventAndPlaces> event = eventService.findEventWithPlaces(eventName);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success(eventName + " adli event-a aid Places ugurla tapildi..", event));
+    }
+
+
+    //Eventleri adlarina gore axtar  +++Postman+++++++    ++++++SECURITY
     @GetMapping("/events/event-name")
     public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findEventByName(
             @RequestParam(name = "name") String eventName,
@@ -75,6 +103,17 @@ public class CommonController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(CommonResponse.success(eventName +" adli Event-lar tapildi..", events));
     }
+
+    //Available biletlere baxmaq  ++Postman++
+    @GetMapping("/events/{eventId}/available-tickets")
+    public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> findAvailableTickets(@PathVariable long eventId){
+        List<TicketResponseDTO> tickets = eventService.findAvailableTickets(eventId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi..", tickets));
+    }
+
+    //Tarix araliginda event-lari tapmaq          (yoxlaaaa)
+
 
 
 //----------------------------------------------------------------------------------------------------------
@@ -133,8 +172,6 @@ public class CommonController {
                         tickets));
     }
 
-
-    //Available Biletleri gormek
 
 
 }

@@ -21,8 +21,10 @@ import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWi
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.roleResponse.RoleResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventAndPlaces;
 import lombok.Data;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,6 @@ public class Mapper {
         return User.builder()
                 .userName(userDTO.getName())
                 .email(userDTO.getEmail())
-                .password(userDTO.getPassword())
                 .build();
     }
 
@@ -175,6 +176,7 @@ public class Mapper {
 
     public static EventResponseDTO eventResponseMapper(Event event) {
         return EventResponseDTO.builder()
+                .id(event.getId())
                 .name(event.getName())
                 .eventDate(event.getEventDate())
                 .availableTickets(event.getAvailableTickets())
@@ -324,6 +326,44 @@ public class Mapper {
                 .eventResponseDTO(eventResponseListMapper(place.getEvents()))
                 .build();
     }
+
+
+
+    public static List<TicketResponseDTO> ticketResponseDTOMapper(List<Ticket> tickets) {
+      return  tickets.stream().map(ticket -> TicketResponseDTO
+                .builder()
+                .ticketNo(ticket.getTicketNo())
+                .status(ticket.getStatus())
+                .ticketTypeName(ticket.getTicketType().getTicketTypeName())
+                .build()).toList();
+    }
+
+    public static Place placeResponseMapper(PlaceResponse placeResponse){
+        return Place.builder()
+                .id(placeResponse.getId())
+                .placeName(placeResponse.getPlaceName())
+                .location(placeResponse.getLocation())
+                .seatCapacity(placeResponse.getSeatCapacity())
+                .build();
+    }
+
+
+
+    public static EventAndPlaces eventAndPlacesMapper(Event event) {
+        return EventAndPlaces.builder()
+                .name(event.getName())
+                .description(event.getDescription())
+                .eventId(event.getId())
+                .maxTickets(event.getMaxTickets())
+                .eventDate(event.getEventDate())
+                .availableTickets(event.getAvailableTickets())
+                .placeId(event.getPlace().getId())
+                .placeName(event.getPlace().getPlaceName())
+                .location(event.getPlace().getLocation())
+                .build();
+    }
+
+
     /*public static EventResponseDTO eventResponseWithTicketTypeListMapper(Event event){
         return EventResponseDTO.builder()
                 .maxTickets(event.getMaxTickets())

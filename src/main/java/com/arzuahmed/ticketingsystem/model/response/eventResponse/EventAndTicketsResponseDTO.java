@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.response.eventResponse;
 
+import com.arzuahmed.ticketingsystem.model.enums.STATUS;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Stack;
 
 @Data
 @Builder
@@ -29,6 +31,7 @@ public class EventAndTicketsResponseDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
     private LocalDateTime eventDate;
+
 
     private Integer  maxTickets;
 

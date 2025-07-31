@@ -22,6 +22,7 @@ import com.arzuahmed.ticketingsystem.service.PlaceServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class PlaceService implements PlaceServiceInterface {
     private final TicketTypeRepository ticketTypeRepository;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public PlaceResponse createPlace(PlaceDTO placeDTO) {
         Place place = Mapper.placeMapper(placeDTO);
         if (placeRepository.existsByPlaceNameEqualsIgnoreCase(place.getPlaceName())){
@@ -44,6 +46,7 @@ public class PlaceService implements PlaceServiceInterface {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public PlaceResponse findPlaceById(Long placeId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
@@ -71,11 +74,11 @@ public class PlaceService implements PlaceServiceInterface {
 
     @Override
     public Place findPlaceByNameAndLocation(String placeName, String location) {
-        return placeRepository.findPlaceByPlaceNameAndLocation(placeName, location)
-                .stream().findFirst().orElseThrow(() -> new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND));
+        return placeRepository.findPlaceByPlaceNameAndLocation(placeName, location);
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void deletePlaceById(Long placeId)
     {
         Place place = placeRepository.findById(placeId)
@@ -106,13 +109,3 @@ public class PlaceService implements PlaceServiceInterface {
 
 }
 
-
-//    @Override
-//    public TicketType addTicketType(TicketTypeDTO ticketTypeDTO) {
-//        TicketType ticketType = Mapper.ticketTypeMapper(ticketTypeDTO);
-//        if (ticketTypeRepository.existsByTicketTypeNameAndPrice(ticketType.getTicketTypeName(), ticketType.getPrice())){
-//           throw new TicketTypeAlreadyExistException("Bu TicketType artiq bazada movcuddur..");
-//        }
-//       return ticketTypeRepository.save(ticketType);
-//    }
-//}

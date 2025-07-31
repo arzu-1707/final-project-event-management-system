@@ -9,6 +9,7 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(1000, "Internal server error"),
     VALIDATION_ERROR(1001, "Validation error"),
     RESOURCE_NOT_FOUND(1002, "Resource not found"),
+    NULL_POINTER_EXCEPTION(1003, "Null Pointer Error"),
 
     //Users Errors
     USER_NOT_FOUND(2000, "User not found"),

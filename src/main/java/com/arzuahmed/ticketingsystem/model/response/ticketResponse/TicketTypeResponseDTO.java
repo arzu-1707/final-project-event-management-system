@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.response.ticketResponse;
 
+import com.arzuahmed.ticketingsystem.model.enums.STATUS;
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,4 +16,5 @@ public class TicketTypeResponseDTO {
     private TICKETTYPENAME ticketTypeName;
 
     private Double price;
+
 }

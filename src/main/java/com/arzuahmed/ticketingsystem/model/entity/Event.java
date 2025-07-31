@@ -49,8 +49,8 @@ public class Event {
     private Place place;
 
     @Column(unique = true , name = "event_Date")
-    @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
     @Future(message = "Event tarixi kecmisde ola bilmez...")
+    @JsonFormat(pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime eventDate ;
 
     @OneToMany(mappedBy = "event", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)

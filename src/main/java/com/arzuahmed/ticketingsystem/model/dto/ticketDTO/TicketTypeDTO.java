@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.model.dto.ticketDTO;
 
+import com.arzuahmed.ticketingsystem.model.enums.STATUS;
 import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,8 @@ public class TicketTypeDTO {
     private Double price;
 
     private Integer ticketCount;
+
+    private STATUS status;
 
 
 }
