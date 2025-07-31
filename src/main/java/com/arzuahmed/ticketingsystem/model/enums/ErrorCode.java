@@ -15,6 +15,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(2000, "User not found"),
     USERS_NOT_FOUND(2001, "Users not found"),
     USER_ALREADY_EXITS_EXCEPTION(2002, "User already exists"),
+    USER_INVALID_PASSWORD(2003, "Invalid password"),
 
 
 

@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.service.impl;
 
+import com.arzuahmed.ticketingsystem.exception.userExceptions.InvalidOldPasswordException;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UserNotFound;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UsersNotFound;
 import com.arzuahmed.ticketingsystem.mapper.Mapper;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +33,7 @@ import java.util.Optional;
 public class UserService implements UserServiceInterface {
 
     private final UserRepositoryInterface userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
@@ -109,17 +112,16 @@ public class UserService implements UserServiceInterface {
 
 
     public UserResponse updatePassword(Long userId, UserPasswordDTO userPasswordDTO) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
-        user.setPassword(userPasswordDTO.getPassword());
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(userPasswordDTO.getOldPassword(), user.getPassword())){
+            throw new InvalidOldPasswordException(ErrorCode.USER_INVALID_PASSWORD);
+        }
+        user.setPassword(passwordEncoder.encode(userPasswordDTO.getNewPassword()));
         User savedUser = userRepository.save(user);
       return   Mapper.userResponseMapper(savedUser);
     }
-
-//
-//    //public Page<Event> getAllEvents(Pageable pageable) {
-//      //  return userRepository.get
-//
-//    //}
 
     //Security ucun metod
     public Optional<User> findByEmail(String email){

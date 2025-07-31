@@ -94,7 +94,7 @@ public class TicketService implements TicketServiceInterface {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_USER')")
     public List<TicketResponseDTO> buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO) {
         User user = userService.findById(userId);
         Event event = eventService.findEventById(buyTicketsDTO.getEventId());

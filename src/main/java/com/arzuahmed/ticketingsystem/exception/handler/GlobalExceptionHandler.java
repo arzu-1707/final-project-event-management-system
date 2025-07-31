@@ -10,6 +10,7 @@ import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceAlreadyExist
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlacesNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.*;
+import com.arzuahmed.ticketingsystem.exception.userExceptions.InvalidOldPasswordException;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UserAlreadyExistException;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UserNotFound;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UsersNotFound;
@@ -20,8 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.net.PortUnreachableException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,7 +38,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(UsersNotFound.class)
-    public ResponseEntity<CommonResponseError> handlerUsersNotFoundException(
+    public ResponseEntity<CommonResponseError> handleUsersNotFoundException(
             UsersNotFound ex, HttpServletRequest request
     )
     {
@@ -49,8 +48,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<CommonResponseError> handlerUserAlreadyExistException(
+    public ResponseEntity<CommonResponseError> handleUserAlreadyExistException(
             UserAlreadyExistException ex, HttpServletRequest request
+    ){
+        CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),
+                ex.getMessage(), request.getRequestURI());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidOldPasswordException.class)
+    public ResponseEntity<CommonResponseError> handleInvalidOldPasswordException(
+            InvalidOldPasswordException ex, HttpServletRequest request
     ){
         CommonResponseError error = CommonResponseError.of(ex.getErrorCode().getCode(),
                 ex.getMessage(), request.getRequestURI());

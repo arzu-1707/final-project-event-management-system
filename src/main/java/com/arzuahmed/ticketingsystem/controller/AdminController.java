@@ -11,13 +11,10 @@ import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceR
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
-import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
 import com.arzuahmed.ticketingsystem.service.impl.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,6 +38,7 @@ public class AdminController {
 
 
     //-------------------------------User ile bagli---------------------------------------------------------
+
     //butun user-lere baxmaq     ++++Postmanda+++
     @GetMapping("/all-users")
     public ResponseEntity<CommonResponse<Page<UserResponse>>> getAllUsers(
