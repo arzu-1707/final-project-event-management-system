@@ -1,5 +1,7 @@
-package com.arzuahmed.ticketingsystem.model.dto.eventDTO;
+package com.arzuahmed.ticketingsystem.model.wrapper;
 
+import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
+import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdAndTicketTypeDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
@@ -10,12 +12,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventWithPlaceIdDTO {
-
+public class EventWithPlaceIdAndTicketTypeListDTO {
     @NotBlank
     @NotNull
     @NotEmpty
@@ -31,10 +33,11 @@ public class EventWithPlaceIdDTO {
 
 
     @Column(unique = true)
-    @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime eventDate;
 
     private Integer  maxTickets;
 
+    private List<TicketTypeDTO> ticketTypeDTO;
 
 }

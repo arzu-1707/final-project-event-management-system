@@ -62,6 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    log.info("User authorities: {}", userDetails.getAuthorities());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -69,13 +70,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (Exception e) {
-            log.error("Could not set user authentication in security context", e);
+            log.error("Access Denied error in filter", e);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Access Denied\"}");
+            return;
         }
+
 
         filterChain.doFilter(request, response);
     }

@@ -9,6 +9,7 @@ import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserEmailDTO;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
+import com.arzuahmed.ticketingsystem.model.response.userResponse.UserInfoResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.repository.UserRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.UserServiceInterface;
@@ -37,12 +38,13 @@ public class UserService implements UserServiceInterface {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<UserResponse> findAllUsers(Pageable pageable) {
+    public Page<UserInfoResponse> findAllUsers(Pageable pageable) {
         Page<User> allUsers = userRepository.findAll(pageable);
+        log.info("Butun Userler: {} ", allUsers );
         if (allUsers.isEmpty()){
             throw new UsersNotFound(ErrorCode.USERS_NOT_FOUND);
         }
-        return Mapper.userResponseMapper(allUsers);
+        return Mapper.userInfoResponseMapper(allUsers);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new UserNotFound(ErrorCode.USER_NOT_FOUND));
@@ -133,4 +135,13 @@ public class UserService implements UserServiceInterface {
         return userRepository.save(user);
     }
 
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteAllUsers() {
+        userRepository.deleteAll();
+    }
+
+    public User findByIdWithTickets(Long id){
+        return userRepository.findByIdWithTickets(id);
+    }
 }

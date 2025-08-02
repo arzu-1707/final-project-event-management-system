@@ -22,6 +22,8 @@ import com.arzuahmed.ticketingsystem.repository.TicketRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.TicketServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketService implements TicketServiceInterface {
 
+    private static final Logger log = LoggerFactory.getLogger(TicketService.class);
     private final TicketRepositoryInterface ticketRepository;
     private final EventService eventService;
     private final UserService userService;
@@ -94,31 +97,34 @@ public class TicketService implements TicketServiceInterface {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public List<TicketResponseDTO> buyTickets(Long userId, BuyTicketsDTO buyTicketsDTO) {
+
         User user = userService.findById(userId);
         Event event = eventService.findEventById(buyTicketsDTO.getEventId());
-        List<Integer> ticketNo = buyTicketsDTO.getTicketNo();
+        List<Integer> ticketNoList = buyTicketsDTO.getTicketNo();
         List<Ticket> tickets = new ArrayList<>();
-        for (Integer ticket : ticketNo){
+        for (Integer ticketNo : ticketNoList){
             List<Ticket> foundTickets = ticketRepository
-                    .findAllByEventAndTicketNoAndStatus(event, ticket, STATUS.AVAILABLE);
+                    .findAllByEventAndTicketNoAndStatus(event, ticketNo, STATUS.AVAILABLE);
               tickets.addAll(foundTickets);
         }
 
-        if (ticketNo.size()!= tickets.size()){
+        if (ticketNoList.size()!= tickets.size()){
             throw new TicketAlreadySoldException(ErrorCode.TICKET_ALREADY_SOLD);
         }
 
         for (Ticket ticket : tickets) {
             ticket.setPurchaseDate(LocalDateTime.now());
+            ticket.setUser(user);
             user.addTicket(ticket);
             ticket.setStatus(STATUS.SOLD);
         }
+
         int count = event.getAvailableTickets() - tickets.size();
         event.setAvailableTickets(count);
 
-        String ticketNumber = ticketNo.stream()
+        String ticketNumber = ticketNoList.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
 

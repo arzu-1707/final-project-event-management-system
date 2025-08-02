@@ -5,28 +5,27 @@ import com.arzuahmed.ticketingsystem.exception.ValidationException.MaxTicketLimi
 import com.arzuahmed.ticketingsystem.exception.ValidationException.TicketCountMismatchException;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketCreateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
-import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 
 import java.util.List;
 
 public class Validate {
 
-    public static void validateMaxTickets(int maxTickets, int seatCapacity){
+    public static void validateMaxTicketAndSeatCapacity(int maxTickets, int seatCapacity){
         if (maxTickets > seatCapacity) {
             throw new CapacityExceededException(ErrorCode.CAPACITY_EXCEEDED_EXCEPTION);
         }
     }
 
 
-    public static void validateTicketCount(int ticketCount, int maxTicket){
+    public static void validateTicketCountAndMaxTicket(int ticketCount, int maxTicket){
         if (ticketCount!=maxTicket){
             throw new TicketCountMismatchException(ErrorCode.TICKET_COUNT_MISMATCH_EXCEPTION);
         }
     }
 
-    public static void validateTicketCountsFromTypeDTO(List<TicketTypeDTO> ticketCount, int maxTicket){
-        int sum = ticketCount.stream()
+    public static void validateTicketCountsFromTypeDTOAndMaxTicket(List<TicketTypeDTO> ticketType, int maxTicket){
+        int sum = ticketType.stream()
                 .mapToInt(TicketTypeDTO::getTicketCount)
                 .sum();
         if (sum>maxTicket){

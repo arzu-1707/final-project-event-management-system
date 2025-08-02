@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface EventRepositoryInterface extends JpaRepository<Event, Long> {
 
@@ -25,7 +27,7 @@ public interface EventRepositoryInterface extends JpaRepository<Event, Long> {
     List<Event> findEventByNameIsLikeIgnoreCase(String name);
 
     List<Event> findEventsByPlace(Place place);
-     Event findEventById(Long id);
+     Optional<Event> findEventById(Long id);
 
 
     Page<Event> findAllByNameEqualsIgnoreCase(String eventName, Pageable pageable);
@@ -38,4 +40,5 @@ public interface EventRepositoryInterface extends JpaRepository<Event, Long> {
     List<Event> findByEventDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
 
+    List<Event> findEventsByEventDateBetween(@Future(message = "Event tarixi kecmisde ola bilmez...") LocalDateTime eventDateAfter, @Future(message = "Event tarixi kecmisde ola bilmez...") LocalDateTime eventDateBefore);
 }

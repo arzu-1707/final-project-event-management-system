@@ -2,26 +2,19 @@ package com.arzuahmed.ticketingsystem.service;
 
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
+import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdAndTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
-import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.AddTicketsDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceIdWithTicketsDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.*;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.*;
-import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface EventServiceInterface {
 
@@ -33,9 +26,9 @@ public interface EventServiceInterface {
 
     Page<EventResponseDTO> findEventByName(String eventName, Pageable pageable);
 
-    EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType);
+    EventAndTicketsResponseDTO createEventTicketWithTicketType(EventWithPlaceIdAndTicketTypeDTO eventTicketTicketType);
 
-    EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTypeListTicketDTO eventTicketTypeListTicket);
+    EventAndTicketsResponseDTO createEventTicketWithTicketType(EventWithPlaceIdAndTicketTypeListDTO eventTicketTypeListTicket);
 
     Event existedEvent(Event event);
 
@@ -64,4 +57,10 @@ public interface EventServiceInterface {
 
 
     void deleteAllEvents();
+
+    List<EventAndPlaces> findEventsBetweenStartDateAndEndDate(LocalDateTime startDate1, LocalDateTime endDate);
+
+    EventAndSumPriceResponse calculatePrice(long eventId);
+
+    Page<EventPlaceNameAndTicketsResponse> findAllEventsAndTickets(Pageable pageable);
 }

@@ -34,6 +34,7 @@ public enum ErrorCode {
 
     //Ticket Type Errors
     TICKET_TYPE_NOT_FOUND(4001, "Ticket Type not found"),
+    TICKETS_TYPE_NOT_FOUND(4002, "Ticket Type List not found"),
     TICKET_TYPE_ALREADY_EXISTS(4003, "ticket already exits"),
 
 
@@ -50,9 +51,12 @@ public enum ErrorCode {
     TICKET_COUNT_MISMATCH_EXCEPTION(6000, "The number of tickets is" +
             " not equal to the maximum number of tickets!"),
     CAPACITY_EXCEEDED_EXCEPTION(6001,"You have exceeded the number of tickets!!!"),
-    MAX_TICKET_LIMIT_VIOLATION_EXCEPTION(6002, "You have exceeded the maximum number of tickets!!!");
+    MAX_TICKET_LIMIT_VIOLATION_EXCEPTION(6002, "You have exceeded the maximum number of tickets!!!"),
 
 
+
+    //
+    ACCESS_DENIED(7000, "Icazen yoxdur");
 
     private final Integer code;
     private final String message;

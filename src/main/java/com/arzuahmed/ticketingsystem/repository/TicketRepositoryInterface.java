@@ -31,4 +31,5 @@ public interface TicketRepositoryInterface extends JpaRepository<Ticket, Long> {
     Optional<List<Ticket>> findTicketsByStatus(STATUS status);
 
 
+    List<Ticket> findByEvent_IdAndStatus(Long eventİd, STATUS status);
 }

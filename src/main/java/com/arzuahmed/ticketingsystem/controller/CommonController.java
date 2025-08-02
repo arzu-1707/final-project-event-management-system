@@ -6,7 +6,9 @@ import com.arzuahmed.ticketingsystem.model.entity.Event;
 import com.arzuahmed.ticketingsystem.model.entity.Place;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceNameAndTicketsResponse;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
@@ -21,6 +23,7 @@ import com.arzuahmed.ticketingsystem.service.impl.CommonService;
 import com.arzuahmed.ticketingsystem.service.impl.EventService;
 import com.arzuahmed.ticketingsystem.service.impl.PlaceService;
 import com.arzuahmed.ticketingsystem.service.impl.TicketService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
@@ -47,7 +50,7 @@ public class CommonController {
     private final TicketService ticketService;
 
 
-    //register   +++Postman+++
+    //register   +++Postman+++  security
     @PostMapping("/register")
     public ResponseEntity<CommonResponse<UserResponse>> register(@RequestBody UserDTO userDTO){
         UserResponse registeredUser = commonService.register(userDTO);
@@ -56,7 +59,7 @@ public class CommonController {
                         registeredUser));
     }
 
-    //login
+    //login   security
     @PostMapping("/login")
     public ResponseEntity<UserTokenResponse> login(@RequestBody UserLoginRequest userLoginRequest){
         UserTokenResponse login = commonService.login(userLoginRequest);
@@ -64,8 +67,6 @@ public class CommonController {
                 .body(login);
     }
 
-
-    //tarix araliginda eventler
 
 
 //----------------------------------------Event ile bagli------------------------------------
@@ -82,16 +83,6 @@ public class CommonController {
                 .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi", events));
     }
 
-
-    //Eventlerin place-lerine elde etmek  ++Postman++=
-    @GetMapping("/events/{eventName}/places")
-    public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventWithPlaces(@PathVariable String eventName){
-        List<EventAndPlaces> event = eventService.findEventWithPlaces(eventName);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success(eventName + " adli event-a aid Places ugurla tapildi..", event));
-    }
-
-
     //Eventleri adlarina gore axtar  +++Postman+++++++    ++++++SECURITY
     @GetMapping("/events/event-name")
     public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findEventByName(
@@ -104,7 +95,31 @@ public class CommonController {
                 .body(CommonResponse.success(eventName +" adli Event-lar tapildi..", events));
     }
 
-    //Available biletlere baxmaq  ++Postman++
+
+    //Eventlerin place-ne gore tapmaq  ++Postman++  security
+    @GetMapping("/events/{eventName}/places")
+    public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventWithPlaces(@PathVariable String eventName){
+        List<EventAndPlaces> event = eventService.findEventWithPlaces(eventName);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success(eventName + " adli event-a aid Places ugurla tapildi..", event));
+    }
+
+    //tarix araliginda eventler    security
+    @GetMapping("/events/")
+    public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventsBetweenStartDateAndEndDate(
+            @RequestParam(required = false) @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime startDate,
+            @RequestParam @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime endDate
+    ) {
+        LocalDateTime startDate1 = startDate == null ? LocalDateTime.now() : startDate;
+
+        List<EventAndPlaces> events = eventService.findEventsBetweenStartDateAndEndDate(startDate1, endDate);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Ugurla yerine yetirildi..", events));
+    }
+
+
+    //Available biletlere baxmaq  ++Postman++   security
     @GetMapping("/events/{eventId}/available-tickets")
     public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> findAvailableTickets(@PathVariable long eventId){
         List<TicketResponseDTO> tickets = eventService.findAvailableTickets(eventId);
@@ -112,7 +127,19 @@ public class CommonController {
                 .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi..", tickets));
     }
 
-    //Tarix araliginda event-lari tapmaq          (yoxlaaaa)
+    //Event-ler ticketler ile birlikde    security
+    @GetMapping("/events/tickets")
+    public ResponseEntity<CommonResponse<Page<EventPlaceNameAndTicketsResponse>>> getAllEventsAndTickets(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize
+    ){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<EventPlaceNameAndTicketsResponse> events = eventService.findAllEventsAndTickets(pageable);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Event ve ona uygun biletler ugurla tapildi..",events));
+    }
+
 
 
 
@@ -122,7 +149,7 @@ public class CommonController {
 //-----------------------------------------Place ile bagli---------------------------------------------------
 
 
-    //umumi placeleri gore biler  ++++Postman++++
+    //umumi placeleri gore biler  ++++Postman++++   security
     @GetMapping("/places")
     public ResponseEntity<CommonResponse<Page<PlaceResponse>>> findAllPlaces(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -135,7 +162,7 @@ public class CommonController {
     }
 
 
-    //Place adlarina gore axtaris  ++++Postman++++
+    //Place adlarina gore axtaris  ++++Postman++++   security
     @GetMapping("/places/place-name")
     public ResponseEntity<CommonResponse<Page<PlaceResponse>>> findPlacesByName(
             @RequestParam(name = "name") String placeName,
@@ -149,7 +176,7 @@ public class CommonController {
     }
 
 
-    //PlaceId-e uygun placelerde kecirilecek tedbirleri gore biler +++Postman++++
+    //PlaceId-e uygun placelerde kecirilecek tedbirleri gore biler +++Postman++++  security
     @GetMapping("/places/{placeId}/events")
     public ResponseEntity<CommonResponse<PlaceWithEventsResponse>> findAllEventsByPlaceId(@PathVariable Long placeId){
         PlaceWithEventsResponse place = placeService.findEventsByPlaceId(placeId);
@@ -161,7 +188,7 @@ public class CommonController {
 
     //------------------------------------------Ticket ile bagli------------------------------------------------------
 
-    //Event-a aid biletleri gormek  +++Postman++++
+    //Event-a aid biletleri gormek  +++Postman++++  security
     @GetMapping("/events/{eventId}/tickets")
     public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> findAllTickets(
             @PathVariable Long eventId)

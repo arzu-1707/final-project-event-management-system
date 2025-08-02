@@ -5,9 +5,15 @@ import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventExistsExcept
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventsNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketTypeNotFound;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketTypesNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketsNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.userExceptions.UserNotFound;
 import com.arzuahmed.ticketingsystem.mapper.Mapper;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
+import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdAndTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
@@ -16,15 +22,14 @@ import com.arzuahmed.ticketingsystem.model.entity.Ticket;
 import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
+import com.arzuahmed.ticketingsystem.model.response.eventResponse.*;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventAndPlaces;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTicketTypeDTO;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventTicketTypeListTicketDTO;
+import com.arzuahmed.ticketingsystem.model.wrapper.EventWithPlaceIdAndTicketTypeListDTO;
 import com.arzuahmed.ticketingsystem.repository.EventRepositoryInterface;
+import com.arzuahmed.ticketingsystem.repository.PlaceRepositoryInterface;
+import com.arzuahmed.ticketingsystem.repository.TicketRepositoryInterface;
 import com.arzuahmed.ticketingsystem.repository.TicketTypeRepository;
 import com.arzuahmed.ticketingsystem.service.EventServiceInterface;
 import com.arzuahmed.ticketingsystem.validate.Validate;
@@ -41,6 +46,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -56,9 +62,12 @@ public class EventService implements EventServiceInterface {
     private final TicketTypeRepository ticketTypeRepository;
     @Autowired
     private TicketTypeService ticketTypeService;
+    @Autowired
+    private PlaceRepositoryInterface placeRepositoryInterface;
+    @Autowired
+    private TicketRepositoryInterface ticketRepositoryInterface;
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public Event findEventById(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(()->
                 new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
@@ -97,28 +106,28 @@ public class EventService implements EventServiceInterface {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTicketTypeDTO eventTicketTicketType) {
+    public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventWithPlaceIdAndTicketTypeDTO fullEvent) {
 
-        Place place = placeService.findById(eventTicketTicketType.getEventDTO().getPlaceId());
-        Event event = Mapper.eventMapper(eventTicketTicketType.getEventDTO());
+        Place place = placeService.findById(fullEvent.getPlaceId());
+        Event event = Mapper.eventMapperFromEventWithPlaceIdAndTicketTypeDTO(fullEvent);
         event.setPlace(place);
         place.addEvent(event);
 
-        Validate.validateMaxTickets(eventTicketTicketType.getEventDTO().getMaxTickets(), event.getPlace().getSeatCapacity());
-        Validate.validateTicketCount(eventTicketTicketType.getTicketTypeDTO().getTicketCount(), eventTicketTicketType.getEventDTO().getMaxTickets());
+        Validate.validateMaxTicketAndSeatCapacity(fullEvent.getMaxTickets(), place.getSeatCapacity());
+        Validate.validateTicketCountAndMaxTicket(fullEvent.getTicketTypeDTO().getTicketCount(),
+                fullEvent.getMaxTickets());
 
         Event savedEvent = eventRepository.save(event);
 
-
-
-        TicketType ticketType = Mapper.ticketTypeMapper(eventTicketTicketType.getTicketTypeDTO());
+        TicketType ticketType = Mapper.ticketTypeMapperFromDTO(fullEvent.getTicketTypeDTO());
         ticketType.setEvent(savedEvent);
         TicketType savedTicketType = ticketTypeRepository.save(ticketType);
 
 
         List<Ticket> tickets = new ArrayList<>();
+
         int ticketCounter = 1;
-        for (int i = 1; i <= eventTicketTicketType.getTicketTypeDTO().getTicketCount(); i++) {
+        for (int i = 1; i <= fullEvent.getTicketTypeDTO().getTicketCount(); i++) {
             Ticket ticket = new Ticket();
             ticket.setTicketNo(ticketCounter++);
             ticket.setEvent(savedEvent);
@@ -130,39 +139,40 @@ public class EventService implements EventServiceInterface {
          ticketService.saveAll(tickets);
          savedEvent.setTickets(tickets);
 
-        return Mapper.eventAndTicketsResponseDTOMapper(savedEvent);
+        return Mapper.eventAndTicketsResponseDTOMapperFromEvent(savedEvent);
     }
 
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public EventAndTicketsResponseDTO createEventTicketWithTicketType(EventTicketTypeListTicketDTO eventTicketTypeListTicket) {
+    public EventAndTicketsResponseDTO createEventTicketWithTicketType(
+            EventWithPlaceIdAndTicketTypeListDTO fullEvent) {
         Place place
-                = placeService.findById(eventTicketTypeListTicket.getEventDTO().getPlaceId());
+                = placeService.findById(fullEvent.getPlaceId());
 
-        Event event = Mapper.eventMapper(eventTicketTypeListTicket.getEventDTO());
+        Event event = Mapper.eventMapperFromEventWithPlaceIdAndTicketTypeListDTO(fullEvent);
 
         event.setPlace(place);
         place.addEvent(event);
 
-        Validate.validateMaxTickets(eventTicketTypeListTicket.getEventDTO().getMaxTickets(), event.getPlace().getSeatCapacity());
-        Validate.validateTicketCountsFromTypeDTO(eventTicketTypeListTicket.getTicketTypeDTOS(), eventTicketTypeListTicket.getEventDTO().getMaxTickets());
+        Validate.validateMaxTicketAndSeatCapacity(fullEvent.getMaxTickets(), event.getPlace().getSeatCapacity());
+        Validate.validateTicketCountsFromTypeDTOAndMaxTicket(fullEvent.getTicketTypeDTO(), fullEvent.getMaxTickets());
 
         Event savedEvent = eventRepository.save(event);
 
 
-        List<TicketType> ticketTypeList = Mapper.ticketTypesMapper(eventTicketTypeListTicket.getTicketTypeDTOS());
+        List<TicketType> ticketTypeList = Mapper.ticketTypeListMapperFromTicketTypeDTO(fullEvent.getTicketTypeDTO());
         for (TicketType ticketType: ticketTypeList){
-            ticketType.setEvent(event);
+            ticketType.setEvent(savedEvent);
             ticketTypeRepository.save(ticketType);
         }
 
 
         List<Ticket> tickets = new ArrayList<>();
         int ticketCounter = 1;
-        for (int i=0; i<eventTicketTypeListTicket.getTicketTypeDTOS().size(); i++){
+        for (int i=0; i<fullEvent.getTicketTypeDTO().size(); i++){
 
-            TicketTypeDTO ticketTypeDTO = eventTicketTypeListTicket.getTicketTypeDTOS().get(i);
+            TicketTypeDTO ticketTypeDTO = fullEvent.getTicketTypeDTO().get(i);
             TicketType ticketType = ticketTypeList.get(i);
 
             for (int j = 1; j <= ticketTypeDTO.getTicketCount(); j++) {
@@ -177,7 +187,7 @@ public class EventService implements EventServiceInterface {
         ticketService.saveAll(tickets);
         savedEvent.setTickets(tickets);
 
-       return Mapper.eventAndTicketsResponseDTOMapper(savedEvent);
+       return Mapper.eventAndTicketsResponseDTOMapperFromEvent(savedEvent);
     }
 
 
@@ -191,9 +201,8 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public Event existedEventById(Long eventId){
-        Event event = eventRepository.findEventById(eventId);
+        Event event = eventRepository.findEventById(eventId).orElseThrow(()-> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
         if (event == null) {
             throw new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND);
         }
@@ -203,10 +212,10 @@ public class EventService implements EventServiceInterface {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public EventResponseDTO createEvent(EventDTO eventDTO) {
-        Event event = Mapper.eventMapper(eventDTO);
        if (eventRepository.existsEventsByEventDate(eventDTO.getEventDate())){
            throw new EventExistsException(ErrorCode.EVENT_ALREADY_EXITS);
         }
+        Event event = Mapper.eventMapper(eventDTO);
         Event savedEvent = eventRepository.save(event);
        return Mapper.eventResponseMapper(savedEvent);
     }
@@ -218,15 +227,18 @@ public class EventService implements EventServiceInterface {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
         Place place = placeService.findById(placeId);
+
         if (place==null){
-            new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND);
+            throw new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND);
         }
+
+        Validate.validateMaxTicketAndSeatCapacity(event.getMaxTickets(), place.getSeatCapacity());
+
         event.setPlace(place);
         place.addEvent(event);
         Event savedEvent = eventRepository.save(event);
         return Mapper.eventAndPlaceResponseDTO(savedEvent);
     }
-
 
 
     @Override
@@ -237,11 +249,11 @@ public class EventService implements EventServiceInterface {
                 new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
         List<Ticket> tickets = new ArrayList<>();
 
-        Validate.validateTicketCountsFromTypeDTO(ticketTypeDTO, event.getMaxTickets());
+        Validate.validateTicketCountsFromTypeDTOAndMaxTicket(ticketTypeDTO, event.getMaxTickets());
+
         int counter = 1;
        for(TicketTypeDTO ticketType : ticketTypeDTO){
-           TicketType ticketType1 = Mapper.ticketTypeMapper(ticketType);
-           ticketType1 = ticketTypeRepository.save(ticketType1);
+           TicketType ticketType1 = ticketTypeRepository.save(Mapper.ticketTypeMapperFromDTO(ticketType));
            for (int i = 1; i <= ticketType.getTicketCount(); i++) {
                Ticket ticket = new Ticket();
                ticket.setTicketType(ticketType1);
@@ -255,7 +267,7 @@ public class EventService implements EventServiceInterface {
 
         Event savedEvent = eventRepository.save(event);
 
-       return Mapper.eventAndTicketsResponseDTOMapper(savedEvent);
+       return Mapper.eventAndTicketsResponseDTOMapperFromEvent(savedEvent);
 
     }
 
@@ -269,8 +281,10 @@ public class EventService implements EventServiceInterface {
       if (place == null){
           placeService.createPlace(placeDTO);
           place = placeService.findPlaceByNameAndLocation(placeDTO.getPlaceName(), placeDTO.getLocation());
-
       }
+
+       Validate.validateMaxTicketAndSeatCapacity(event.getMaxTickets(), place.getSeatCapacity());
+
         event.setPlace(place);
         place.addEvent(event);
         Event savedEvent = eventRepository.save(event);
@@ -339,6 +353,42 @@ public class EventService implements EventServiceInterface {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteAllEvents() {
         eventRepository.deleteAll();
+    }
+
+    @Override
+    public List<EventAndPlaces> findEventsBetweenStartDateAndEndDate(LocalDateTime startDate1, LocalDateTime endDate) {
+        List<Event> events = eventRepository.findEventsByEventDateBetween(startDate1, endDate);
+       return events.stream()
+                .map(event -> Mapper.eventAndPlacesMapper(event))
+                .toList();
+    }
+
+    @Override
+    public EventAndSumPriceResponse calculatePrice(long eventId) {
+        Event event = eventRepository.findEventById(eventId)
+                .orElseThrow(() -> new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
+
+        Place place = placeService.findById(event.getPlace().getId());
+
+        List<Ticket> tickets = ticketRepositoryInterface.findByEvent_IdAndStatus(eventId, STATUS.SOLD);
+
+        if (tickets.isEmpty()){
+            throw new TicketNotFoundException(ErrorCode.TICKET_NOT_FOUND);
+        }
+
+       Double sumPrice = tickets.stream().map(ticket -> ticket.getTicketType().getPrice())
+                .reduce(Double::sum).orElseThrow();
+
+        EventAndSumPriceResponse eventAndSumPriceResponse = Mapper
+                .eventAndSumPriceResponseFromEventPlace(event, place);
+        eventAndSumPriceResponse.setSumPrice(sumPrice);
+        return eventAndSumPriceResponse;
+    }
+
+    @Override
+    public Page<EventPlaceNameAndTicketsResponse> findAllEventsAndTickets(Pageable pageable) {
+        Page<Event> events = eventRepository.findAll(pageable);
+        return events.map(event -> Mapper.eventPlaceNameAndTicketsMapperFromEvent(event));
     }
 
 

@@ -13,11 +13,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.net.http.HttpRequest;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(
+        prePostEnabled = true,
         securedEnabled = true,
         jsr250Enabled = true
 )
@@ -37,7 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers("/common/**").permitAll()
                                 .requestMatchers("/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/v1/users/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/v1/users/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterAt( jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

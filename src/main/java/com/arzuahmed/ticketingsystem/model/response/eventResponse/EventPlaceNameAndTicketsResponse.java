@@ -1,6 +1,5 @@
 package com.arzuahmed.ticketingsystem.model.response.eventResponse;
 
-import com.arzuahmed.ticketingsystem.model.enums.STATUS;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,27 +13,33 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Stack;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EventAndTicketsResponseDTO {
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    private String name;
+public class EventPlaceNameAndTicketsResponse {
 
-    private String description;
+        private Long id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime eventDate;
+        @NotNull
+        @NotEmpty
+        @NotBlank
+        private String name;
 
-    private Integer  maxTickets;
+        private String description;
 
-    private Integer availableTickets;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        private LocalDateTime eventDate;
 
-    private List<TicketTypeResponseDTO> tickets;
+        private String placeName;
+
+        private String location;
+        private Integer  maxTickets;
+
+        private Integer availableTickets;
+
+        private List<TicketTypeResponseDTO> tickets;
+
 }

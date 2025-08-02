@@ -33,7 +33,7 @@ public class TicketTypeService implements TicketTypeServiceInterface {
     @PreAuthorize("hasRole('ADMIN')")
     public TicketType addTicketTypeInEvent(Long eventId, TicketTypeDTO ticketTypeDTO) {
         Event event = eventService.findEventById(eventId);
-        TicketType ticketType = Mapper.ticketTypeMapper(ticketTypeDTO);
+        TicketType ticketType = Mapper.ticketTypeMapperFromDTO(ticketTypeDTO);
         ticketType.setEvent(event);
         return ticketTypeRepository.save(ticketType);
     }

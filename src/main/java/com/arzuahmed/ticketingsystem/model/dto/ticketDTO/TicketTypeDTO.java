@@ -22,5 +22,4 @@ public class TicketTypeDTO {
 
     private STATUS status;
 
-
 }
