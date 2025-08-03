@@ -17,6 +17,7 @@ import com.arzuahmed.ticketingsystem.exception.userExceptions.UserNotFound;
 import com.arzuahmed.ticketingsystem.exception.userExceptions.UsersNotFound;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponseError;
+import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -254,6 +255,7 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
 
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN); // 403
     }
+
 
 
 

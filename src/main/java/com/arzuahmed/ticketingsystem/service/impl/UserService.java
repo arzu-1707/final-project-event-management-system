@@ -92,19 +92,7 @@ public class UserService implements UserServiceInterface {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFound(ErrorCode.USER_NOT_FOUND));
         return user.getTickets();
     }
-//
-//
-//   /* public ResponseEntity<User> updateUser(Long userId, UserDTO userDTO) {
-//        User newUser = userRepository.findById(userId).orElseThrow(()->
-//                new UserNotFound("User is not found") );
-//        newUser.setName(userDTO.getName());
-//        newUser.setEmail(userDTO.getEmail());
-//        newUser.setPassword(userDTO.getPassword());
-//        newUser.setRole(userDTO.getRole());
-//        userRepository.save(newUser);
-//        return ResponseEntity.ok(newUser);
-//    } */
-//
+
     public UserResponse updateEmail(Long userId, UserEmailDTO userEmailDTO) {
         User user = findById(userId);
         user.setEmail(userEmailDTO.getEmail());

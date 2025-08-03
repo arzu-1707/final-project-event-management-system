@@ -2,7 +2,6 @@ package com.arzuahmed.ticketingsystem.controller;
 
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDTO;
 import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventDateDTO;
-import com.arzuahmed.ticketingsystem.model.dto.eventDTO.EventWithPlaceIdAndTicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.dto.placeDTO.PlaceIdDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
@@ -16,7 +15,10 @@ import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserInfoResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventWithPlaceIdAndTicketTypeListDTO;
+import com.arzuahmed.ticketingsystem.repository.PlaceRepositoryInterface;
 import com.arzuahmed.ticketingsystem.service.impl.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,12 +26,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
 
+@Tag(name = "Admin Operations", description = "Bu metodlar ancaq admin ucundur")
 @RestController
 @RequestMapping("v1/admin")
 @RequiredArgsConstructor
@@ -38,11 +40,15 @@ public class AdminController {
     private final EventService eventService;
     private final PlaceService placeService;
     private final TicketTypeService ticketTypeService;
+    private final PlaceRepositoryInterface placeRepositoryInterface;
 
 
     //-------------------------------User ile bagli---------------------------------------------------------
 
     //butun user-lere baxmaq     ++++Postmanda+++  security
+    @Operation(summary = "Butun Userler",description = "Butun Userler ve onlar haqqinda informasiya getirmek",
+            tags = {"Admin Operations"}
+    )
     @GetMapping("/all-users")
     public ResponseEntity<CommonResponse<Page<UserInfoResponse>>> getAllUsers(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -56,7 +62,12 @@ public class AdminController {
     }
 
     //id-e gore user axtarisi     ++++++Postman+++++   security
+
     @GetMapping("/user-id/{userId}")
+    @Operation(summary = "UserId-e gore User axtarisi",
+            description = "UserId-e gore User-in informasiyasini getirmek",
+            tags = {"Admin Operations"}
+    )
     public ResponseEntity<CommonResponse<UserResponse>> getUserById(@PathVariable Long userId){
         UserResponse userResponse =  userService.findUserById(userId);
         return ResponseEntity.status(HttpStatus.OK)
@@ -64,6 +75,10 @@ public class AdminController {
     }
 
     //ada gore user axtarisi   ++++Postman+++++  security
+    @Operation(summary = "UserName-e gore axtaris",
+            description = "UserName-e gore User-in melumatlarini getirir",
+            tags = {"Admin Operations"}
+    )
     @GetMapping("/user-name")
     public ResponseEntity<CommonResponse<Page<UserResponse>>> getUserByUserName(
             @RequestParam(name = "name") String userName,
@@ -76,6 +91,10 @@ public class AdminController {
     }
 
     //email-e gore user axtarisi    ++++++Postman++++++  security
+    @Operation(summary = "UserEmail-e gore axtaris",
+            description = "User-in Email-ne gore User-in melumatlarini getirir",
+            tags = {"Admin Operations"}
+    )
     @GetMapping("/user-email")
     public ResponseEntity<CommonResponse<UserResponse>> getUserByUserEmail(@RequestBody UserEmailDTO userEmailDTO){
         UserResponse user = userService.findUserResponseByEmail(userEmailDTO);
@@ -85,6 +104,11 @@ public class AdminController {
     }
 
     //id-e gore user silmek    +++++Postman+++++     security
+    @Operation(summary = "UserId-e gore User-in silinmesi",
+            description = "User-in Id-ne gore User-i silir. " +
+                    "Bu metod User-in hesabini deaktiv etmek ucun de istifade olunur",
+            tags = {"Admin Operations"}
+    )
     @DeleteMapping("/user-id/{userId}")
     public ResponseEntity<CommonResponse<Void>> deleteUser(@PathVariable Long userId){
         userService.deleteUser(userId);
@@ -95,6 +119,10 @@ public class AdminController {
 
 
     //Butun userleri silmek   security
+    @Operation(summary = "Butun Userlerin silinmesi",
+            description = "Butun Userler ve onlar haqqinda informasiya silmek ucun istifade olunur",
+            tags = {"Admin Operations"}
+    )
     @DeleteMapping("/all-users")
     public ResponseEntity<CommonResponse<Void>> deleteAllUsers(){
         userService.deleteAllUsers();
@@ -109,6 +137,9 @@ public class AdminController {
     //----------------------------------------Event ile bagli--------------------------------------------------
 
     //Event Yaratmaq   ++++++ Postman+++    security
+    @Operation(summary = "Yeni Event yaratmaq",description = "Yeni bir event yaradir",
+            tags = {"Admin Operations"}
+    )
     @PostMapping("/create/event")
     public ResponseEntity<CommonResponse<EventResponseDTO>> createEvent(@RequestBody @Valid EventDTO eventDTO){
        EventResponseDTO eventResponseDTO = eventService.createEvent(eventDTO);
@@ -117,6 +148,11 @@ public class AdminController {
     }
 
     //Movcud event-a movcud place-i elave etmek  ++++Postman+++   security
+    @Operation(summary = "Movcud Event-in Place ile elaqelendirilmesi",
+            description = "Evvelce EventId-e gore Event-in ve PlaceId-e gore Place-nin olub olmamasini yoxlayir," +
+                    " sonra Event-i Place ile elaqelendirir ",
+            tags = {"Admin Operations"}
+    )
     @PatchMapping("/events/{eventId}")
     public ResponseEntity<CommonResponse<EventAndPlaceResponseDTO>> addPlaceInEvent(@PathVariable Long eventId,
                                                                                     @RequestBody PlaceIdDTO placeIdDTO){
@@ -128,6 +164,10 @@ public class AdminController {
     }
 
     //Event-in Place deyismek (movcud bir place ile)   ++++Postman+++   security
+    @Operation(summary = "Event-in Place-ni deyisdirilmesi",
+            description = "EventId-e gore Event-in Place-ni deyisir",
+            tags = {"Admin Operations"}
+    )
     @PutMapping("/events/{eventId}/update-place")
     public ResponseEntity<CommonResponse<EventAndPlaceResponseDTO>> updatePlaceInEvent(@PathVariable Long eventId,
                                                                                        @RequestBody PlaceDTO placeDTO){
@@ -141,6 +181,10 @@ public class AdminController {
     }
 
     //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +++++Postman++  security
+    @Operation(summary = "Movcud Event-e Ticket elave edilmesi",
+            description = "Movcud Event-e Ticketler elave edir",
+            tags = {"Admin Operations"}
+    )
     @PatchMapping("/events/{eventId}/add-tickets-ticketType")
     public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> addTicketsAndTicketTypeInEvent(
             @PathVariable Long eventId,
@@ -152,6 +196,11 @@ public class AdminController {
 
 
     //Yeni Event, TicketType (VIP, Regular ve ya tekce bir tipe uygun) ve ticketler      ++++Postman+++  security
+    @Operation(summary = "Yeni Event, Biletlerin novlerine uygun Biletlerin yaradilmasi ",
+            description = "Yeni event yaradir ve biletletrin novune gore ticketleri ellave edir." +
+                    " Bu bir tipe de, muxtelif tipe de aid ola biler",
+            tags = {"Admin Operations"}
+    )
     @PostMapping("/create/event/tickets/ticketType")
     public ResponseEntity<CommonResponse<EventAndTicketsResponseDTO>> createEventTicketTicketType(
             @RequestBody EventWithPlaceIdAndTicketTypeListDTO eventTicketTypeListTicket){
@@ -163,6 +212,10 @@ public class AdminController {
     }
 
     //Event-in Available ticket sayina baxmaq ucun  ++Postman++++  security
+    @Operation(summary = "Event-de satilmamis biletlerin sayi",
+            description = "Event-de satilmamis biletlerin sayini gosterir",
+            tags = {"Admin Operations"}
+    )
     @GetMapping("/events/{eventId}/available-ticket/count")
     public ResponseEntity<CommonResponse<Integer>> findCountAvailableTickets(@PathVariable Long eventId){
         Integer count = eventService.findCountAvailableTickers(eventId);
@@ -171,6 +224,10 @@ public class AdminController {
     }
 
     //Event tarixini deyisdirmek    +++++Postman+++  Security
+    @Operation(summary = "Event-in tarixini deyismek",
+            description = "Event-in kecireceyi vaxti deyismek ucun istifade olunur",
+            tags = {"Admin Operations"}
+    )
     @PatchMapping("/events/{eventId}/update-event-date")
     public ResponseEntity<CommonResponse<EventResponseDTO>> updateEventDate(@PathVariable Long eventId,
                                                                             @RequestBody @Valid EventDateDTO eventDateDTO){
@@ -181,6 +238,10 @@ public class AdminController {
 
 
     //Event-in gelirini hesablamaq       security
+    @Operation(summary = "Event-in biletlerinin(satilmis) qiymetini hesablayir",
+            description = "Event-in satilmis (status.Sold olan) biletlerin qiymetlerini toplayir",
+            tags = {"Admin Operations"}
+    )
     @GetMapping("/events/{eventId}/sum-price")
     public ResponseEntity<CommonResponse<EventAndSumPriceResponse>> calculatePrice(@PathVariable long eventId){
         EventAndSumPriceResponse event = eventService.calculatePrice(eventId);
@@ -193,6 +254,11 @@ public class AdminController {
 
 
     //Event Silmek  ++++++Postman+++  security
+    @Operation(
+            summary = "Event silmək",
+            description = "Verilmiş ID-ə əsasən bir event-i silir",
+            tags = {"Admin Operations"}
+    )
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<CommonResponse> deleteEventById(@PathVariable Long eventId){
         eventService.deleteEvent(eventId);
@@ -201,6 +267,11 @@ public class AdminController {
     }
 
     //Butun eventleri silme   Security
+    @Operation(
+            summary = "Bütün Eventləri silmək",
+            description = "Sistemdəki bütün Event-ləri silir. Bu əməliyyat diqqətlə istifadə olunmalıdır.",
+            tags = {"Admin Operations"}
+    )
     @DeleteMapping("/all-events")
     public ResponseEntity<CommonResponse> deleteAllEvents(){
         eventService.deleteAllEvents();
@@ -215,6 +286,8 @@ public class AdminController {
 //---------------------------------------------Place ile bagli----------------------------------------------------
 
     //Place Elave etmek   +++++Postman+++++
+    @Operation(summary = "Place yaratmaq", description = "Yeni Place yaratmaq ucun istifade olunur",
+    tags = {"Admin operations"})
     @PostMapping("/create/place")
     public ResponseEntity<CommonResponse<PlaceResponse>> createPlace(@RequestBody @Valid PlaceDTO placeDTO ){
         PlaceResponse placeResponse = placeService.createPlace(placeDTO);
@@ -223,6 +296,9 @@ public class AdminController {
     }
 
     //place Id-e gore axtaris +++++Postman+++++
+    @Operation(summary = "Place-in Id-ne gore axtaris",
+            description = "Place-in Id-ne gore axtaris etmek ucun istifade olunur",
+            tags = {"Admin operations"})
     @GetMapping("/places/{placeId}")
     public ResponseEntity<CommonResponse<PlaceResponse>> findPlaceById(@PathVariable Long placeId){
         PlaceResponse place = placeService.findPlaceById(placeId);
@@ -232,12 +308,27 @@ public class AdminController {
 
 
     //place silmek   +++++Postman++++
+    @Operation(summary = "Bir Place silmek", description = "Place-in Id-ne gore bir Place silir",
+            tags = {"Admin operations"})
     @DeleteMapping("/places/{placeId}")
     public ResponseEntity<CommonResponse<Void>> deletePlaceById(@PathVariable Long placeId){
         placeService.deletePlaceById(placeId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(CommonResponse.success("Id-si " +placeId +" olan Place silindi...", null));
     }
+
+    //Umumi place-leri silmek   +++++Postman++++
+    @Operation(summary = "Butun Place-leri silmek", description = "Sistemde olan butun Place-leri silir.",
+            tags = {"Admin operations"})
+    @DeleteMapping("/all-places")
+    public ResponseEntity<CommonResponse<Void>> deleteAllPlaces(){
+        placeRepositoryInterface.deleteAll();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Butun Place-ler Sistemden silindi", null));
+    }
+
+
+
 //------------------------------------------------------------------------------------------------------------
 
 

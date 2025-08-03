@@ -17,6 +17,8 @@ import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketsRespon
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.service.impl.TicketService;
 import com.arzuahmed.ticketingsystem.service.impl.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "User Operations" , description = "Bu metodlardan hem admin, hem de login olmus user-ler istifade ede biler")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("v1/users")
@@ -42,7 +45,10 @@ public class UserController {
     private final TicketService ticketService;
 
 
-    //User-in ticketlerini axtaris +++POSTMAN++  security
+    //User-in ticketlerini axtaris +++POSTMAN++security
+    @Operation(summary = "User-in ticketlerin axtarisi",
+    description = "User-in aldigi biletlere baxmaq ucun istifade olunur",
+    tags = {"User Operations"})
    @GetMapping("/tickets")
   public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> getAllTickets() {
        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -60,6 +66,9 @@ public class UserController {
 
 
     //emailini deyisdirmek  +++POSTMAN+++   security
+    @Operation(summary = "User-in Email deyisdirilmesi",
+            description = "User-in ozunun email-nin deyisdirilmesi ucun istifade olunur",
+            tags = {"User Operations"})
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PatchMapping("/email")
     public ResponseEntity<CommonResponse<UserResponse>> updateEmailInUser(@RequestBody UserEmailDTO userEmailDTO){
@@ -73,6 +82,9 @@ public class UserController {
     }
 
     //Password-nu deyisdirme  +++POSTMAN+++   security
+    @Operation(summary = "User-in password-nun deyisdirilmesi",
+            description = "User-in password-nun deyisdirilmesi ucun istifade olunur",
+            tags = {"User Operations"})
     @PatchMapping("/password")
     public ResponseEntity<CommonResponse<UserResponse>> updatePasswordInUser(
             @RequestBody UserPasswordDTO userPasswordDTO){
@@ -86,6 +98,9 @@ public class UserController {
     }
 
   //hesabini deaktiv etmek              security
+  @Operation(summary = "User-in hesabinin deaktiv olunmasi",
+          description = "User oz hesabini dondurulmasi ucun istifade olunur",
+          tags = {"User Operations"})
     @DeleteMapping("/my-account/deactivate")
     public ResponseEntity<CommonResponse<Void>> deactivateMyAccount(){
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -98,6 +113,9 @@ public class UserController {
     }
 
 //    //Ticketler almaq  + ++++Postman++++   security
+@Operation(summary = "Ticket alinmasi",
+        description = "User-in bilet ve ya biletler almaq ucun istifade olunur",
+        tags = {"User Operations"})
 @PatchMapping("/tickets/buy")
     public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> buyTickets(
                                                       @RequestBody BuyTicketsDTO buyTicketsDTO){

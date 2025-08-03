@@ -34,23 +34,28 @@ public class SecurityConfig {
                 .sessionManagement(session->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/common/**").permitAll()
+                        auth.requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/v3/api-docs/**"
+                                ).permitAll()
+                                .requestMatchers("/common/**").permitAll()
                                 .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/v1/users/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .addFilterAt( jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"401 Unauthorized: Giris teleb olunur\"}");
-                        })
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"403 Forbidden: Icazeniz yoxdur\"}");
-                        }));
+                .addFilterAt( jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//                .exceptionHandling(ex -> ex
+//                        .authenticationEntryPoint((request, response, authException) -> {
+//                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                            response.setContentType("application/json");
+//                            response.getWriter().write("{\"error\": \"401 Unauthorized: Giris teleb olunur\"}");
+//                        })
+//                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+//                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//                            response.setContentType("application/json");
+//                            response.getWriter().write("{\"error\": \"403 Forbidden: Icazeniz yoxdur\"}");
+//                        }));
         return http.build();
     }
 }

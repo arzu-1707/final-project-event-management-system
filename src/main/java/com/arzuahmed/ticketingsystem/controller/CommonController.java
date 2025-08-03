@@ -24,6 +24,8 @@ import com.arzuahmed.ticketingsystem.service.impl.EventService;
 import com.arzuahmed.ticketingsystem.service.impl.PlaceService;
 import com.arzuahmed.ticketingsystem.service.impl.TicketService;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Tag(name = "Common Operations", description = "Bu metodlari istifade etmek ucun register ve ya login olmaq ehtiyyac yoxdur")
 @RestController
 @RequestMapping("/common")
 @RequiredArgsConstructor
@@ -50,6 +53,9 @@ public class CommonController {
     private final TicketService ticketService;
 
 
+    @Operation(summary = "Register",
+            description = "Butun istifadecilerin register olunmasi (USER ROLE)",
+    tags = {"Common Operations"})
     //register   +++Postman+++  security
     @PostMapping("/register")
     public ResponseEntity<CommonResponse<UserResponse>> register(@RequestBody UserDTO userDTO){
@@ -60,6 +66,8 @@ public class CommonController {
     }
 
     //login   security
+    @Operation(summary = "Login", description = "Login olunmasi (Hem ADMIN, hem de USER)",
+            tags = {"Common Operations"})
     @PostMapping("/login")
     public ResponseEntity<UserTokenResponse> login(@RequestBody UserLoginRequest userLoginRequest){
         UserTokenResponse login = commonService.login(userLoginRequest);
@@ -72,6 +80,8 @@ public class CommonController {
 //----------------------------------------Event ile bagli------------------------------------
 
     //Eventleri gor   ++++Postman++++++       ++++++++++++++SECURITY
+    @Operation(summary = "Umumi Eventler", description = "Butun Eventlerin getirilmesi",
+            tags = {"Common Operations"})
     @GetMapping("/events")
     public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findAllEvents(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -84,6 +94,8 @@ public class CommonController {
     }
 
     //Eventleri adlarina gore axtar  +++Postman+++++++    ++++++SECURITY
+    @Operation(summary = "Ada gore axtaris", description = "Event-in adina gore axtarisi",
+            tags = {"Common Operations"})
     @GetMapping("/events/event-name")
     public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findEventByName(
             @RequestParam(name = "name") String eventName,
@@ -97,6 +109,9 @@ public class CommonController {
 
 
     //Eventlerin place-ne gore tapmaq  ++Postman++  security
+    @Operation(summary = "Event-in kecireleceyi place-lerin axtarisi",
+            description = "EventId-e gore Place-lerin axtarisi",
+            tags = {"Common Operations"})
     @GetMapping("/events/{eventName}/places")
     public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventWithPlaces(@PathVariable String eventName){
         List<EventAndPlaces> event = eventService.findEventWithPlaces(eventName);
@@ -105,6 +120,8 @@ public class CommonController {
     }
 
     //tarix araliginda eventler    security
+    @Operation(summary = "Tarixe gore axtaris", description = "Mueyyen tarix araliginda axtaris",
+            tags = {"Common Operations"})
     @GetMapping("/events/")
     public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventsBetweenStartDateAndEndDate(
             @RequestParam(required = false) @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime startDate,
@@ -120,6 +137,9 @@ public class CommonController {
 
 
     //Available biletlere baxmaq  ++Postman++   security
+    @Operation(summary = "Satilmamis biletlerin axtarisi",
+            description = "EventId-e uygun satilmamis biletlerin axtarisi",
+            tags = {"Common Operations"})
     @GetMapping("/events/{eventId}/available-tickets")
     public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> findAvailableTickets(@PathVariable long eventId){
         List<TicketResponseDTO> tickets = eventService.findAvailableTickets(eventId);
@@ -128,6 +148,9 @@ public class CommonController {
     }
 
     //Event-ler ticketler ile birlikde    security
+    @Operation(summary = "Butun Event-lerin ve ona uygun ticketlerin axtarisi",
+            description = "Butun Eventlerin ve onlarin Ticketlerin getirilmesi",
+            tags = {"Common Operations"})
     @GetMapping("/events/tickets")
     public ResponseEntity<CommonResponse<Page<EventPlaceNameAndTicketsResponse>>> getAllEventsAndTickets(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -150,6 +173,9 @@ public class CommonController {
 
 
     //umumi placeleri gore biler  ++++Postman++++   security
+    @Operation(summary = "Umumi Place-ler",
+            description = "Umumi Place-ler ve onlar haqqinda informasiya",
+            tags = {"Common Operations"})
     @GetMapping("/places")
     public ResponseEntity<CommonResponse<Page<PlaceResponse>>> findAllPlaces(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -163,6 +189,9 @@ public class CommonController {
 
 
     //Place adlarina gore axtaris  ++++Postman++++   security
+    @Operation(summary = "PlaceName-e gore axtaris",
+            description = "Place-nin adina uygun Place-lerin informasiyasi",
+            tags = {"Common Operations"})
     @GetMapping("/places/place-name")
     public ResponseEntity<CommonResponse<Page<PlaceResponse>>> findPlacesByName(
             @RequestParam(name = "name") String placeName,
@@ -177,6 +206,9 @@ public class CommonController {
 
 
     //PlaceId-e uygun placelerde kecirilecek tedbirleri gore biler +++Postman++++  security
+    @Operation(summary = "PlaceId-ne gore Eventler",
+            description = "PalecId-e gore Place-in kecireceyi eventlerin siyahisi",
+            tags = {"Common Operations"})
     @GetMapping("/places/{placeId}/events")
     public ResponseEntity<CommonResponse<PlaceWithEventsResponse>> findAllEventsByPlaceId(@PathVariable Long placeId){
         PlaceWithEventsResponse place = placeService.findEventsByPlaceId(placeId);
@@ -189,6 +221,9 @@ public class CommonController {
     //------------------------------------------Ticket ile bagli------------------------------------------------------
 
     //Event-a aid biletleri gormek  +++Postman++++  security
+    @Operation(summary = "Event-e aid biletler",
+            description = "EventId-e gore umumi ticketler",
+            tags = {"Common Operations"})
     @GetMapping("/events/{eventId}/tickets")
     public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> findAllTickets(
             @PathVariable Long eventId)
