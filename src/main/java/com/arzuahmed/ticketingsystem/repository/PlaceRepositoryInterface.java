@@ -12,10 +12,7 @@ public interface PlaceRepositoryInterface extends JpaRepository<Place, Long> {
 
     boolean existsByPlaceNameEqualsIgnoreCase(String placeName);
 
-    List<Place> findPlaceByPlaceNameEqualsIgnoreCase(String placeName);
-
-
-   // List<Place> findPlaceByPlaceNameAndLocation(String placeName, String location);
+    Optional<Place> findByPlaceNameEqualsIgnoreCase(String placeName);
 
     Page<Place> findAllByPlaceNameEqualsIgnoreCase(String placeName, Pageable pageable);
 

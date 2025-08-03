@@ -56,7 +56,12 @@ public enum ErrorCode {
 
 
     //
-    ACCESS_DENIED(7000, "Icazen yoxdur");
+    ACCESS_DENIED(7000, "Icazen yoxdur"),
+
+
+    //Page Exceptions
+    PAGE_SIZE_OUT_OF_RANGE_EXCEPTION(8000, "Invalid page size: must be between 1 and 1000"),
+    INVALID_PAGE_NUMBER_EXCEPTION(8001, "Invalid page number: must be between 1 and 1000");
 
     private final Integer code;
     private final String message;

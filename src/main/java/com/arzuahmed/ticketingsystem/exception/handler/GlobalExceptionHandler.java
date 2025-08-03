@@ -7,6 +7,8 @@ import com.arzuahmed.ticketingsystem.exception.ValidationException.TicketCountMi
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventExistsException;
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.eventExceptions.EventsNotFoundException;
+import com.arzuahmed.ticketingsystem.exception.pageExceptions.PageNumberOutOfRangeException;
+import com.arzuahmed.ticketingsystem.exception.pageExceptions.PageSizeOutOfRangeException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceAlreadyExistsException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlaceNotFoundException;
 import com.arzuahmed.ticketingsystem.exception.placeExceptions.PlacesNotFoundException;
@@ -258,12 +260,10 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
 
 
 
-
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonResponseError> handleGlobalException(
             Exception ex, HttpServletRequest request) {
-        GlobalExceptionHandler.log.error("Unhandled exception occurred", ex); // STACK TRACE ilə loglama
+        GlobalExceptionHandler.log.error("Unhandled exception occurred", ex);
         CommonResponseError errorResponse = CommonResponseError.of(
                 ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
                 ex.getMessage(),
@@ -284,4 +284,32 @@ public ResponseEntity<CommonResponseError> handlerEventNotFoundException(
     }
 
 
+
+//--------------------------------------------Page Exceptions-----------------------------------------------------
+
+    @ExceptionHandler(PageNumberOutOfRangeException.class)
+    public ResponseEntity<CommonResponseError> handlePageNumberOutOfRangeException(
+            PageNumberOutOfRangeException ex, HttpServletRequest request
+    ){
+        CommonResponseError commonResponseError = CommonResponseError.of(
+                ErrorCode.PAGE_SIZE_OUT_OF_RANGE_EXCEPTION.getCode(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(commonResponseError, HttpStatus.CONFLICT);
+
+    }
+
+
+    @ExceptionHandler(PageSizeOutOfRangeException.class)
+    public ResponseEntity<CommonResponseError> handlePageSizeOutOfRangeException(
+            PageSizeOutOfRangeException ex, HttpServletRequest request
+    ){
+        CommonResponseError error = CommonResponseError.of(
+                ErrorCode.PAGE_SIZE_OUT_OF_RANGE_EXCEPTION.getCode(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }

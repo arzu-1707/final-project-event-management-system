@@ -99,6 +99,20 @@ public class PlaceService implements PlaceServiceInterface {
 
     }
 
+    @Override
+    public PlaceWithEventsResponse findEventsByPlaceName(String placeName) {
+        Place place = placeRepository.findByPlaceNameEqualsIgnoreCase(placeName).orElseThrow(
+                () -> new PlaceNotFoundException(ErrorCode.PLACE_NOT_FOUND)
+        );
+
+        if (place.getEvents().isEmpty())
+        {
+            throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
+        }
+
+       return Mapper.placeWithEventsResponse(place);
+    }
+
 
     public Place findById(Long placeId){
        return placeRepository.findById(placeId).orElseThrow(()->

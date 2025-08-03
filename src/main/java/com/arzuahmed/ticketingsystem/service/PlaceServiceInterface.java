@@ -28,5 +28,7 @@ public interface PlaceServiceInterface {
 
     PlaceWithEventsResponse findEventsByPlaceId(Long placeId);
 
+    PlaceWithEventsResponse findEventsByPlaceName(String placeName);
+
     //  TicketType addTicketType(TicketTypeDTO ticketTypeDTO);
 }

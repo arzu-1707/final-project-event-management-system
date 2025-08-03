@@ -3,6 +3,7 @@ package com.arzuahmed.ticketingsystem.validate;
 import com.arzuahmed.ticketingsystem.exception.ValidationException.CapacityExceededException;
 import com.arzuahmed.ticketingsystem.exception.ValidationException.MaxTicketLimitViolationException;
 import com.arzuahmed.ticketingsystem.exception.ValidationException.TicketCountMismatchException;
+import com.arzuahmed.ticketingsystem.exception.ticketsExceptions.TicketAlreadySoldException;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketCreateDTO;
 import com.arzuahmed.ticketingsystem.model.dto.ticketDTO.TicketTypeDTO;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
@@ -32,6 +33,7 @@ public class Validate {
             throw new MaxTicketLimitViolationException(ErrorCode.MAX_TICKET_LIMIT_VIOLATION_EXCEPTION);
         }
     }
+
 
 
     public static void validateTicketCountsFromCreateDTO(List<TicketCreateDTO> ticketCount,  int maxTicketCount){

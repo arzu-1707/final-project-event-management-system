@@ -61,40 +61,6 @@ public class TicketService implements TicketServiceInterface {
     }
 
 
-//    @Override
-//    @Transactional
-//    public void buyTicket(Long userId, BuyTicketDTO buyTicketDTO) {
-//        User user = userService.findUserById(userId);
-//        Event event = eventService.findEventById(buyTicketDTO.getEventId());
-//        Integer ticketNo = buyTicketDTO.getTicketNo();
-//        Ticket ticket = ticketRepository.findTicketByEventAndTicketNoAndStatus(event,
-//                ticketNo, STATUS.AVAILABLE).orElseThrow(() -> new TicketNotAvailable("Ticket Not Available"));
-//        ticket.setStatus(STATUS.SOLD);
-//        ticket.setUser(user);
-//        ticket.setPurchaseDate(LocalDateTime.now());
-//        String body = """
-//                Salam %s
-//
-//                Siz biletinizi ugurla aldiniz!!
-//
-//                Tedbir  :  %s
-//                Biletin nomresi :  %d
-//                Tedbirin kecirileceyi yer: %s
-//                Tarix:   %s
-//
-//
-//                Hormetle Ticketing System!
-//                """.formatted(user.getUserName(), event.getName(),
-//                ticket.getTicketNo(), event.getPlace().getPlaceName(),
-//                event.getEventDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy,   HH:mm")));
-//
-//        emailService.sendEmail(user.getEmail(), "Bilet Ugurla alinmisdir..", body );
-//        user.addTicket(ticket);
-//        ticketRepository.save(ticket);
-//        userService.save(user);
-//
-//    }
-
     @Override
     @Transactional
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -103,13 +69,7 @@ public class TicketService implements TicketServiceInterface {
         User user = userService.findById(userId);
         Event event = eventService.findEventById(buyTicketsDTO.getEventId());
         List<Integer> ticketNoList = buyTicketsDTO.getTicketNo();
-        List<Ticket> tickets = new ArrayList<>();
-        for (Integer ticketNo : ticketNoList){
-            List<Ticket> foundTickets = ticketRepository
-                    .findAllByEventAndTicketNoAndStatus(event, ticketNo, STATUS.AVAILABLE);
-              tickets.addAll(foundTickets);
-        }
-
+        List<Ticket> tickets = findAllByEventAndTicketNoAndStatus(event, ticketNoList);
         if (ticketNoList.size()!= tickets.size()){
             throw new TicketAlreadySoldException(ErrorCode.TICKET_ALREADY_SOLD);
         }
@@ -128,7 +88,30 @@ public class TicketService implements TicketServiceInterface {
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
 
-        String body = """
+        String message = messageText().formatted(user.getUserName(),
+                event.getName(), ticketNumber,
+                event.getPlace().getPlaceName(),
+                event.getEventDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy,   HH:mm")));
+
+        emailService.sendEmail(user.getEmail(), "Biletleriniz Ugurla alinmisdir!!!", message);
+
+        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+        userService.save(user);
+       return Mapper.ticketResponseListMapper(savedTickets);
+    }
+
+    public List<Ticket> findAllByEventAndTicketNoAndStatus(Event event, List<Integer> ticketNoList) {
+        List<Ticket> tickets = new ArrayList<>();
+        for (Integer ticketNo : ticketNoList){
+            List<Ticket> foundTickets = ticketRepository
+                    .findAllByEventAndTicketNoAndStatus(event, ticketNo, STATUS.AVAILABLE);
+            tickets.addAll(foundTickets);
+        }
+        return tickets;
+    }
+
+    public String messageText(){
+        return  """
                 Salam %s
 
                 Siz biletlerinizi uğurla aldınız!
@@ -139,16 +122,7 @@ public class TicketService implements TicketServiceInterface {
                 Tarix:   %s
 
 
-                Hormetle Ticketing System!""".formatted(user.getUserName(),
-                event.getName(), ticketNumber,
-                event.getPlace().getPlaceName(),
-                event.getEventDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy,   HH:mm")));
-
-        emailService.sendEmail(user.getEmail(), "Biletleriniz Ugurla alinmisdir!!!", body);
-
-        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
-        userService.save(user);
-       return Mapper.ticketResponseListMapper(savedTickets);
+                Hormetle Ticketing System!""";
     }
 
     @Override
