@@ -5,8 +5,6 @@ import com.arzuahmed.ticketingsystem.exception.pageExceptions.PageSizeOutOfRange
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

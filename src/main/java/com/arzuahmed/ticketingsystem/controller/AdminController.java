@@ -88,7 +88,7 @@ public class AdminController {
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/user-name")
-    public ResponseEntity<CommonResponse<Page<UserResponse>>> getUserByUserName(
+    public ResponseEntity<CommonResponse<PageClass<UserResponse>>> getUserByUserName(
             @RequestParam(name = "name") String userName,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -97,8 +97,10 @@ public class AdminController {
         Sort sort = asc ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable =PageRequest.of(pageNumber,pageSize, sort);
         Page<UserResponse> users = userService.findUserByUserName(userName, pageable);
+
+        PageClass<UserResponse> user = new PageClass<>(users);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("Ugurla basa catdi...",users));
+                .body(CommonResponse.success("Ugurla basa catdi...",user));
     }
 
     //email-e gore user axtarisi    ++++++Postman++++++  security
@@ -271,7 +273,7 @@ public class AdminController {
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
     )
     @DeleteMapping("/events/{eventId}")
-    public ResponseEntity<CommonResponse> deleteEventById(@PathVariable Long eventId){
+    public ResponseEntity<CommonResponse<Void>> deleteEventById(@PathVariable Long eventId){
         eventService.deleteEvent(eventId);
         return ResponseEntity.ok(CommonResponse.success("Id-si " + eventId
                 + " olan Event ugurla silinmisdir...", null));
@@ -284,10 +286,10 @@ public class AdminController {
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
     )
     @DeleteMapping("/all-events")
-    public ResponseEntity<CommonResponse> deleteAllEvents(){
+    public ResponseEntity<CommonResponse<Void>> deleteAllEvents(){
         eventService.deleteAllEvents();
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("Butun Eventler ugurla silindi..."));
+                .body(CommonResponse.success("Butun Eventler ugurla silindi...", null));
     }
 
 //----------------------------------------------------------------------------------------------------------------

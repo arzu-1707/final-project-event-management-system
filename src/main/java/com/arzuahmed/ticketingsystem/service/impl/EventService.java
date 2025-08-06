@@ -356,11 +356,10 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    public List<EventAndPlaces> findEventsBetweenStartDateAndEndDate(LocalDateTime startDate1, LocalDateTime endDate) {
-        List<Event> events = eventRepository.findEventsByEventDateBetween(startDate1, endDate);
-       return events.stream()
-                .map(event -> Mapper.eventAndPlacesMapper(event))
-                .toList();
+    public Page<EventAndPlaces> findEventsBetweenStartDateAndEndDate(LocalDateTime startDate1, LocalDateTime endDate, Pageable pageable) {
+        Page<Event> events = eventRepository.findEventsByEventDateBetween(startDate1, endDate, pageable);
+       return events
+                .map(event -> Mapper.eventAndPlacesMapper(event));
     }
 
     @Override

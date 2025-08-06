@@ -58,7 +58,7 @@ public interface EventServiceInterface {
 
     void deleteAllEvents();
 
-    List<EventAndPlaces> findEventsBetweenStartDateAndEndDate(LocalDateTime startDate1, LocalDateTime endDate);
+    Page<EventAndPlaces> findEventsBetweenStartDateAndEndDate(LocalDateTime startDate1, LocalDateTime endDate, Pageable pageable);
 
     EventAndSumPriceResponse calculatePrice(long eventId);
 

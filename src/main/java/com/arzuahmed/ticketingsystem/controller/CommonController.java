@@ -1,5 +1,6 @@
 package com.arzuahmed.ticketingsystem.controller;
 
+import com.arzuahmed.ticketingsystem.model.PageClass;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserDTO;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserLoginRequest;
 import com.arzuahmed.ticketingsystem.model.entity.Event;
@@ -84,7 +85,7 @@ public class CommonController {
     @Operation(summary = "Umumi Eventler", description = "Butun Eventlerin getirilmesi",
             tags = {"Common Operations"})
     @GetMapping("/events")
-    public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findAllEvents(
+    public ResponseEntity<CommonResponse<PageClass<EventResponseDTO>>> findAllEvents(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -93,15 +94,17 @@ public class CommonController {
         Sort sort = asc ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<EventResponseDTO> events = eventService.findAllEvents(pageable);
+
+        PageClass<EventResponseDTO> event = new PageClass<>(events);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi", events));
+                .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi", event));
     }
 
     //Eventleri adlarina gore axtar  +++Postman+++++++    ++++++SECURITY
     @Operation(summary = "Ada gore axtaris", description = "Event-in adina gore axtarisi",
             tags = {"Common Operations"})
     @GetMapping("/events/event-name")
-    public ResponseEntity<CommonResponse<Page<EventResponseDTO>>> findEventByName(
+    public ResponseEntity<CommonResponse<PageClass<EventResponseDTO>>> findEventByName(
             @RequestParam(name = "name") String eventName,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -110,8 +113,9 @@ public class CommonController {
         Sort sort = asc ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
         Page<EventResponseDTO> events = eventService.findEventByName(eventName, pageable);
+        PageClass<EventResponseDTO> pageClass = new PageClass<>(events);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success(eventName +" adli Event-lar tapildi..", events));
+                .body(CommonResponse.success(eventName +" adli Event-lar tapildi..", pageClass));
     }
 
 
@@ -130,16 +134,21 @@ public class CommonController {
     @Operation(summary = "Tarixe gore axtaris", description = "Mueyyen tarix araliginda axtaris",
             tags = {"Common Operations"})
     @GetMapping("/events/between-date")
-    public ResponseEntity<CommonResponse<List<EventAndPlaces>>> findEventsBetweenStartDateAndEndDate(
+    public ResponseEntity<CommonResponse<PageClass<EventAndPlaces>>> findEventsBetweenStartDateAndEndDate(
             @RequestParam(required = false) @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime startDate,
-            @RequestParam @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime endDate
+            @RequestParam @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime endDate,
+            @RequestParam(defaultValue = "0") int pageSize,
+            @RequestParam(defaultValue = "10") int pageNumber
     ) {
         LocalDateTime startDate1 = startDate == null ? LocalDateTime.now() : startDate;
 
-        List<EventAndPlaces> events = eventService.findEventsBetweenStartDateAndEndDate(startDate1, endDate);
+        Pageable pageable = PageRequest.of(pageSize, pageNumber);
 
+        Page<EventAndPlaces> events = eventService.findEventsBetweenStartDateAndEndDate(startDate1, endDate, pageable);
+
+        PageClass<EventAndPlaces> event = new PageClass<>(events);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("Ugurla yerine yetirildi..", events));
+                .body(CommonResponse.success("Ugurla yerine yetirildi..", event));
     }
 
 
@@ -159,7 +168,7 @@ public class CommonController {
             description = "Butun Eventlerin ve onlarin Ticketlerin getirilmesi",
             tags = {"Common Operations"})
     @GetMapping("/events/tickets")
-    public ResponseEntity<CommonResponse<Page<EventPlaceNameAndTicketsResponse>>> getAllEventsAndTickets(
+    public ResponseEntity<CommonResponse<PageClass<EventPlaceNameAndTicketsResponse>>> getAllEventsAndTickets(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -169,8 +178,10 @@ public class CommonController {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<EventPlaceNameAndTicketsResponse> events = eventService.findAllEventsAndTickets(pageable);
 
+        PageClass<EventPlaceNameAndTicketsResponse> event = new PageClass<>(events);
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("Event ve ona uygun biletler ugurla tapildi..",events));
+                .body(CommonResponse.success("Event ve ona uygun biletler ugurla tapildi..",event));
     }
 
 
@@ -187,7 +198,7 @@ public class CommonController {
             description = "Umumi Place-ler ve onlar haqqinda informasiya",
             tags = {"Common Operations"})
     @GetMapping("/places")
-    public ResponseEntity<CommonResponse<Page<PlaceResponse>>> findAllPlaces(
+    public ResponseEntity<CommonResponse<PageClass<PlaceResponse>>> findAllPlaces(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -196,8 +207,10 @@ public class CommonController {
         Sort sort = asc ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<PlaceResponse> places = placeService.findAllPlaces(pageable);
+
+        PageClass<PlaceResponse> place =new PageClass<>(places);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("Ugurla yerine yetirildi..", places));
+                .body(CommonResponse.success("Ugurla yerine yetirildi..", place));
     }
 
 
@@ -206,18 +219,19 @@ public class CommonController {
             description = "Place-nin adina uygun Place-lerin informasiyasi",
             tags = {"Common Operations"})
     @GetMapping("/places/place-name")
-    public ResponseEntity<CommonResponse<Page<PlaceResponse>>> findPlacesByName(
+    public ResponseEntity<CommonResponse<PageClass<PlaceResponse>>> findPlacesByName(
             @RequestParam(name = "name") String placeName,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam String sortBy,
+            @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam boolean asc
             ){
         Sort sort = asc ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<PlaceResponse> places = placeService.findPlaceByName(placeName, pageable);
+        PageClass<PlaceResponse> place = new PageClass<>(places);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success(placeName + " adli place-ler ugurla tapildi..", places));
+                .body(CommonResponse.success(placeName + " adli place-ler ugurla tapildi..", place));
     }
 
 
