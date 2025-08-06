@@ -26,11 +26,11 @@ public class PageClass <T> implements Pageable {
         this.sort = Sort.unsorted();
     }
 
-    public PageClass(Page<T> springPage){
-        this.content = springPage.getContent();
-        this.size = springPage.getSize();
-        this.number = springPage.getNumber();
-        this.sort = springPage.getSort();
+    public PageClass(Page<T> pageClass){
+        this.content = pageClass.getContent();
+        this.size = pageClass.getSize();
+        this.number = pageClass.getNumber();
+        this.sort = pageClass.getSort();
     }
 
     public PageClass(int size, int number, Sort sort){

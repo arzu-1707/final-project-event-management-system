@@ -49,8 +49,8 @@ public class AdminController {
     //-------------------------------User ile bagli---------------------------------------------------------
 
     //butun user-lere baxmaq     ++++Postmanda+++  security
-    @Operation(summary = "Butun Userler",description = "Butun Userler ve onlar haqqinda informasiya getirmek",
-            tags = {"Admin Operations"},security = @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Butun Userler", description = "Butun Userler ve onlar haqqinda melumat getirmek ucun istifade olunur",
+            tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/all-users")
     public ResponseEntity<CommonResponse<PageClass<UserInfoResponse>>> getAllUsers(

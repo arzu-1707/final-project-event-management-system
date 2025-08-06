@@ -43,6 +43,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -388,6 +389,14 @@ public class EventService implements EventServiceInterface {
     public Page<EventPlaceNameAndTicketsResponse> findAllEventsAndTickets(Pageable pageable) {
         Page<Event> events = eventRepository.findAll(pageable);
         return events.map(event -> Mapper.eventPlaceNameAndTicketsMapperFromEvent(event));
+    }
+
+    @Override
+    public Page<EventAndPlaces> findEventsByDate(LocalDateTime datetime, Pageable pageable) {
+
+        Page<Event> events = eventRepository.findEventsByEventDate(datetime, pageable);
+        return events.map(event -> Mapper.eventAndPlacesMapper(event));
+
     }
 
 

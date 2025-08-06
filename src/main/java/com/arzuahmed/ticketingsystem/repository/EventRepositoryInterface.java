@@ -41,4 +41,8 @@ public interface EventRepositoryInterface extends JpaRepository<Event, Long> {
 
 
     Page<Event> findEventsByEventDateBetween(@Future(message = "Event tarixi kecmisde ola bilmez...") LocalDateTime eventDateAfter, @Future(message = "Event tarixi kecmisde ola bilmez...") LocalDateTime eventDateBefore, Pageable pageable);
+
+    List<Event> findEventsByEventDate(@Future(message = "Event tarixi kecmisde ola bilmez...") LocalDateTime eventDate);
+
+    Page<Event> findEventsByEventDate(@Future(message = "Event tarixi kecmisde ola bilmez...") LocalDateTime eventDate, Pageable pageable);
 }

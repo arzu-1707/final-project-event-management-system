@@ -130,8 +130,30 @@ public class CommonController {
                 .body(CommonResponse.success(eventName + " adli event-a aid Places ugurla tapildi..", event));
     }
 
+
+
+    //Mueyyen tarixe uygun eventler
+    @Operation(summary = "Tarixe uygun axtaris", description = "Bu metod tarixe esasen eventleri tapir"
+            , tags = {"Common Operations"})
+    @GetMapping("/events/date")
+    public ResponseEntity<CommonResponse<PageClass<EventAndPlaces>>> findEventsByDate(
+            @RequestParam(required = false) @JsonFormat(pattern = "dd.MM.yyyy HH:mm") LocalDateTime date,
+            @RequestParam(defaultValue = "0") int pageSize,
+            @RequestParam(defaultValue = "10") int pageNumber
+    ){
+        LocalDateTime datetime = date == null ? LocalDateTime.now() : date;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<EventAndPlaces> eventsPage = eventService.findEventsByDate(datetime, pageable);
+        PageClass<EventAndPlaces> events = new PageClass<>(eventsPage);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Tarixe uygun event-ler ugurla getirildi..", events));
+
+    }
+
     //tarix araliginda eventler    security
-    @Operation(summary = "Tarixe gore axtaris", description = "Mueyyen tarix araliginda axtaris",
+    @Operation(summary = "Tarix araligina gore axtaris", description = "Mueyyen tarix araliginda axtaris",
             tags = {"Common Operations"})
     @GetMapping("/events/between-date")
     public ResponseEntity<CommonResponse<PageClass<EventAndPlaces>>> findEventsBetweenStartDateAndEndDate(

@@ -63,4 +63,6 @@ public interface EventServiceInterface {
     EventAndSumPriceResponse calculatePrice(long eventId);
 
     Page<EventPlaceNameAndTicketsResponse> findAllEventsAndTickets(Pageable pageable);
+
+    Page<EventAndPlaces> findEventsByDate(LocalDateTime datetime, Pageable pageable);
 }
