@@ -120,6 +120,7 @@ public class CommonController {
 
 
 
+
     @Operation(summary = "Event-in kecireleceyi place-lerin axtarisi",
             description = "Event name-e gore Place-lerin axtarisi",
             tags = {"Common Operations"})

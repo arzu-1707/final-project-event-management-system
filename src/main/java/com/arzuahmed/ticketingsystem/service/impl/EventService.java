@@ -388,6 +388,9 @@ public class EventService implements EventServiceInterface {
     @Override
     public Page<EventPlaceNameAndTicketsResponse> findAllEventsAndTickets(Pageable pageable) {
         Page<Event> events = eventRepository.findAll(pageable);
+        if (events.isEmpty() || events == null){
+            throw new EventsNotFoundException(ErrorCode.EVENTS_NOT_FOUND);
+        }
         return events.map(event -> Mapper.eventPlaceNameAndTicketsMapperFromEvent(event));
     }
 
@@ -396,6 +399,17 @@ public class EventService implements EventServiceInterface {
 
         Page<Event> events = eventRepository.findEventsByEventDate(datetime, pageable);
         return events.map(event -> Mapper.eventAndPlacesMapper(event));
+
+    }
+
+
+    @Override
+    public EventResponseDTO updateEventDescription(Long eventId, String description) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                new EventNotFoundException(ErrorCode.EVENT_NOT_FOUND));
+        event.setDescription(description);
+        Event savedEvent = eventRepository.save(event);
+        return Mapper.eventResponseMapper(savedEvent);
 
     }
 

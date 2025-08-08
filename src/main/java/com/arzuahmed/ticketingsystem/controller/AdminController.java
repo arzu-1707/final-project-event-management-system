@@ -249,6 +249,23 @@ public class AdminController {
                 .body(CommonResponse.success("Event-in tarixi ugurla deyisdirildi..",event));
     }
 
+    //Event-in description deyismek
+    @Operation(summary = "Event-in description-u deyismek",
+            description = "Event-in description-nu deyismek ucun istifade olunur",
+            tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PatchMapping("/events/{eventId}/update-event-description")
+    public ResponseEntity<CommonResponse<EventResponseDTO>> updateEventDescription(@PathVariable Long eventId,
+                                                                                   @RequestBody String description){
+        EventResponseDTO eventResponseDTO = eventService.updateEventDescription(eventId, description);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(CommonResponse.success("Event-in description deyisdirildi", eventResponseDTO));
+    }
+
+
+
+
+
 
     //Event-in gelirini hesablamaq       security
     @Operation(summary = "Event-in biletlerinin(satilmis) qiymetini hesablayir",

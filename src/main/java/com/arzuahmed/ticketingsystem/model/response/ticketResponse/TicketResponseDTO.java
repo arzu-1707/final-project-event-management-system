@@ -15,4 +15,5 @@ public class TicketResponseDTO {
     private Integer ticketNo;
     private STATUS status;
     private TICKETTYPENAME ticketTypeName;
+    private Double price;
 }

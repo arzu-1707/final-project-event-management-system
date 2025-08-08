@@ -1,7 +1,6 @@
 package com.arzuahmed.ticketingsystem.config;
 
 import com.arzuahmed.ticketingsystem.security.jwt.JwtAuthenticationFilter;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -13,6 +13,7 @@ import com.arzuahmed.ticketingsystem.model.entity.TicketType;
 import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.enums.ErrorCode;
 import com.arzuahmed.ticketingsystem.model.enums.STATUS;
+import com.arzuahmed.ticketingsystem.model.enums.TICKETTYPENAME;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
@@ -28,11 +29,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,6 +79,14 @@ public class TicketService implements TicketServiceInterface {
             throw new TicketAlreadySoldException(ErrorCode.TICKET_ALREADY_SOLD);
         }
 
+
+        Double price = tickets.stream()
+                .map(ticket -> ticket.getTicketType().getPrice())
+                .reduce(Double::sum).orElseThrow();
+
+        //minibank
+        withdrawFromAccount(buyTicketsDTO.getAccountNo(), price);
+
         for (Ticket ticket : tickets) {
             ticket.setPurchaseDate(LocalDateTime.now());
             ticket.setUser(user);
@@ -98,6 +111,21 @@ public class TicketService implements TicketServiceInterface {
         List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
         userService.save(user);
        return Mapper.ticketResponseListMapper(savedTickets);
+    }
+
+    public void withdrawFromAccount(String accountNo, double money){
+        String url = "http://localhost:9090/account/withdraw-money?accountNo={accountNo}&money={money}";
+        RestTemplate restTemplate = new RestTemplate();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("accountNo", accountNo);
+        params.put("money", money);
+
+        try {
+            restTemplate.put(url, null, params);
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Bilet alma emeliyyati ugursuz oldu: " + e.getMessage());
+        }
     }
 
     public List<Ticket> findAllByEventAndTicketNoAndStatus(Event event, List<Integer> ticketNoList) {

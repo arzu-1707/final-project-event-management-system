@@ -65,4 +65,6 @@ public interface EventServiceInterface {
     Page<EventPlaceNameAndTicketsResponse> findAllEventsAndTickets(Pageable pageable);
 
     Page<EventAndPlaces> findEventsByDate(LocalDateTime datetime, Pageable pageable);
+
+    EventResponseDTO updateEventDescription(Long eventId, String description);
 }

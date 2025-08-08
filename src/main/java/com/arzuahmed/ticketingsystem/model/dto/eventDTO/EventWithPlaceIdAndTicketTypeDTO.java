@@ -33,7 +33,7 @@ public class EventWithPlaceIdAndTicketTypeDTO {
 
 
     @Column(unique = true)
-    @JsonFormat(pattern = "yyyy-MM-dd  HH:mm")
+    @JsonFormat(pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime eventDate;
 
     private Integer  maxTickets;

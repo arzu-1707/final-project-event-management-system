@@ -60,7 +60,4 @@ public class User {
         tickets.add(ticket);
     }
 
-    public void addRole(Role role){
-        roles.add(role);
-    }
 }

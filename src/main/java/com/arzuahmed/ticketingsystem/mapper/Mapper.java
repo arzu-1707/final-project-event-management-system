@@ -151,6 +151,7 @@ public class Mapper {
                                ticket.getTicketType() != null ? ticket.getTicketType().getTicketTypeName() : null
                        )
                        .ticketNo(ticket.getTicketNo())
+                       .price(ticket.getTicketType().getPrice())
                        .build())
                .toList();
     }
@@ -288,6 +289,7 @@ public class Mapper {
 
 
     public static EventAndPlaces eventAndPlacesMapper(Event event) {
+
         return EventAndPlaces.builder()
                 .name(event.getName())
                 .description(event.getDescription())

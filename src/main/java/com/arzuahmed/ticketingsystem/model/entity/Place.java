@@ -30,7 +30,7 @@ public class Place {
     @Builder.Default
     private List<Event> events = new ArrayList<>();
 
-    //oturacaq yerlerinin sayi sayi yazmaq
+    //oturacaq yerlerinin sayi yazmaq
     @Positive
     private Integer seatCapacity;
 

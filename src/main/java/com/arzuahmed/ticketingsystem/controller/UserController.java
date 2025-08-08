@@ -136,7 +136,8 @@ public class UserController {
         tags = {"User Operations"}, security = @SecurityRequirement(name = "bearerAuth"))
 @PatchMapping("/tickets/buy")
     public ResponseEntity<CommonResponse<List<TicketResponseDTO>>> buyTickets(
-                                                      @RequestBody BuyTicketsDTO buyTicketsDTO){
+                                                      @RequestBody BuyTicketsDTO buyTicketsDTO
+                                                      ){
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     String email = auth.getName();

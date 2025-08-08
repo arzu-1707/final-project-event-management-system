@@ -30,7 +30,7 @@ public class EventPlaceNameAndTicketsResponse {
 
         private String description;
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        @JsonFormat(pattern = "dd.MM.yyyy HH:mm")
         private LocalDateTime eventDate;
 
         private String placeName;
