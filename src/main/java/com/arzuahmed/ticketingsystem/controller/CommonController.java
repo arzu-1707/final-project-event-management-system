@@ -3,22 +3,14 @@ package com.arzuahmed.ticketingsystem.controller;
 import com.arzuahmed.ticketingsystem.model.PageClass;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserDTO;
 import com.arzuahmed.ticketingsystem.model.dto.userDTO.UserLoginRequest;
-import com.arzuahmed.ticketingsystem.model.entity.Event;
-import com.arzuahmed.ticketingsystem.model.entity.Place;
-import com.arzuahmed.ticketingsystem.model.entity.User;
 import com.arzuahmed.ticketingsystem.model.response.CommonResponse;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndPlaceResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventAndTicketsResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventPlaceNameAndTicketsResponse;
 import com.arzuahmed.ticketingsystem.model.response.eventResponse.EventResponseDTO;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceResponse;
 import com.arzuahmed.ticketingsystem.model.response.placeResponse.PlaceWithEventsResponse;
 import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketTypeResponseDTO;
-import com.arzuahmed.ticketingsystem.model.response.ticketResponse.TicketsResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserResponse;
 import com.arzuahmed.ticketingsystem.model.response.userResponse.UserTokenResponse;
-import com.arzuahmed.ticketingsystem.model.wrapper.EventAndAvailableTicketResponse;
 import com.arzuahmed.ticketingsystem.model.wrapper.EventAndPlaces;
 import com.arzuahmed.ticketingsystem.service.impl.CommonService;
 import com.arzuahmed.ticketingsystem.service.impl.EventService;
@@ -28,18 +20,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,7 +46,6 @@ public class CommonController {
     @Operation(summary = "Register",
             description = "Butun istifadecilerin register olunmasi (USER ROLE)",
     tags = {"Common Operations"})
-    //register   +++Postman+++  security
     @PostMapping("/register")
     public ResponseEntity<CommonResponse<UserResponse>> register(@RequestBody UserDTO userDTO){
         UserResponse registeredUser = commonService.register(userDTO);
@@ -67,7 +54,6 @@ public class CommonController {
                         registeredUser));
     }
 
-    //login   security
     @Operation(summary = "Login", description = "Login olunmasi (Hem ADMIN, hem de USER)",
             tags = {"Common Operations"})
     @PostMapping("/login")
@@ -81,7 +67,6 @@ public class CommonController {
 
 //----------------------------------------Event ile bagli------------------------------------
 
-    //Eventleri gor   ++++Postman++++++       ++++++++++++++SECURITY
     @Operation(summary = "Umumi Eventler", description = "Butun Eventlerin getirilmesi",
             tags = {"Common Operations"})
     @GetMapping("/events")
@@ -100,7 +85,7 @@ public class CommonController {
                 .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi", event));
     }
 
-    //Eventleri adlarina gore axtar  +++Postman+++++++    ++++++SECURITY
+
     @Operation(summary = "Ada gore axtaris", description = "Event-in adina gore axtarisi",
             tags = {"Common Operations"})
     @GetMapping("/events/event-name")
@@ -119,8 +104,6 @@ public class CommonController {
     }
 
 
-
-
     @Operation(summary = "Event-in kecireleceyi place-lerin axtarisi",
             description = "Event name-e gore Place-lerin axtarisi",
             tags = {"Common Operations"})
@@ -132,8 +115,6 @@ public class CommonController {
     }
 
 
-
-    //Mueyyen tarixe uygun eventler
     @Operation(summary = "Tarixe uygun axtaris", description = "Bu metod tarixe esasen eventleri tapir"
             , tags = {"Common Operations"})
     @GetMapping("/events/date")
@@ -153,7 +134,7 @@ public class CommonController {
 
     }
 
-    //tarix araliginda eventler    security
+
     @Operation(summary = "Tarix araligina gore axtaris", description = "Mueyyen tarix araliginda axtaris",
             tags = {"Common Operations"})
     @GetMapping("/events/between-date")
@@ -175,7 +156,7 @@ public class CommonController {
     }
 
 
-    //Available biletlere baxmaq  ++Postman++   security
+
     @Operation(summary = "Satilmamis biletlerin axtarisi",
             description = "EventId-e uygun satilmamis biletlerin axtarisi",
             tags = {"Common Operations"})
@@ -186,7 +167,7 @@ public class CommonController {
                 .body(CommonResponse.success("Emeliyyat ugurla yerine yetirildi..", tickets));
     }
 
-    //Event-ler ticketler ile birlikde    security
+
     @Operation(summary = "Butun Event-lerin ve ona uygun ticketlerin axtarisi",
             description = "Butun Eventlerin ve onlarin Ticketlerin getirilmesi",
             tags = {"Common Operations"})
@@ -216,7 +197,6 @@ public class CommonController {
 //-----------------------------------------Place ile bagli---------------------------------------------------
 
 
-    //umumi placeleri gore biler  ++++Postman++++   security
     @Operation(summary = "Umumi Place-ler",
             description = "Umumi Place-ler ve onlar haqqinda informasiya",
             tags = {"Common Operations"})
@@ -237,7 +217,6 @@ public class CommonController {
     }
 
 
-    //Place adlarina gore axtaris  ++++Postman++++   security
     @Operation(summary = "PlaceName-e gore axtaris",
             description = "Place-nin adina uygun Place-lerin informasiyasi",
             tags = {"Common Operations"})
@@ -258,7 +237,6 @@ public class CommonController {
     }
 
 
-    //PlaceId-e uygun placelerde kecirilecek tedbirleri gore biler +++Postman++++  security
     @Operation(summary = "PlaceId-ne gore Eventler",
             description = "PalecId-e gore Place-in kecireceyi eventlerin siyahisi",
             tags = {"Common Operations"})
@@ -284,7 +262,7 @@ public class CommonController {
 
     //------------------------------------------Ticket ile bagli------------------------------------------------------
 
-    //Event-a aid biletleri gormek  +++Postman++++  security
+
     @Operation(summary = "Event-e aid biletler",
             description = "EventId-e gore umumi ticketler",
             tags = {"Common Operations"})

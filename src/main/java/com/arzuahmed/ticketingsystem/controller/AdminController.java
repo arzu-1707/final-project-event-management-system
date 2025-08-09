@@ -46,10 +46,10 @@ public class AdminController {
     private final PlaceRepositoryInterface placeRepositoryInterface;
 
 
-    //-------------------------------User ile bagli---------------------------------------------------------
+    //--------------------------------------User ile bagli---------------------------------------------------------
 
-    //butun user-lere baxmaq     ++++Postmanda+++  security
-    @Operation(summary = "Butun Userler", description = "Butun Userler ve onlar haqqinda melumat getirmek ucun istifade olunur",
+    @Operation(summary = "Butun Userler",
+            description = "Butun Userler ve onlar haqqinda melumat elde etmek ucun istifade olunur",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/all-users")
@@ -69,7 +69,6 @@ public class AdminController {
 
     }
 
-    //id-e gore user axtarisi     ++++++Postman+++++   security
 
     @GetMapping("/user-id/{userId}")
     @Operation(summary = "UserId-e gore User axtarisi",
@@ -82,7 +81,7 @@ public class AdminController {
                 .body(CommonResponse.success("Id-si "+ userId +" olan istifadeci tapildi..",userResponse));
     }
 
-    //ada gore user axtarisi   ++++Postman+++++  security
+
     @Operation(summary = "UserName-e gore axtaris",
             description = "UserName-e gore User-in melumatlarini getirir",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -103,7 +102,7 @@ public class AdminController {
                 .body(CommonResponse.success("Ugurla basa catdi...",user));
     }
 
-    //email-e gore user axtarisi    ++++++Postman++++++  security
+
     @Operation(summary = "UserEmail-e gore axtaris",
             description = "User-in Email-ne gore User-in melumatlarini getirir",
             tags = {"Admin Operations"},security = @SecurityRequirement(name = "bearerAuth")
@@ -116,7 +115,7 @@ public class AdminController {
                         user));
     }
 
-    //id-e gore user silmek    +++++Postman+++++     security
+
     @Operation(summary = "UserId-e gore User-in silinmesi",
             description = "User-in Id-ne gore User-i silir. " +
                     "Bu metod User-in hesabini deaktiv etmek ucun de istifade olunur",
@@ -131,7 +130,6 @@ public class AdminController {
     }
 
 
-    //Butun userleri silmek   security
     @Operation(summary = "Butun Userlerin silinmesi",
             description = "Butun Userler ve onlar haqqinda informasiya silmek ucun istifade olunur",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -149,7 +147,7 @@ public class AdminController {
 
     //----------------------------------------Event ile bagli--------------------------------------------------
 
-    //Event Yaratmaq   ++++++ Postman+++    security
+
     @Operation(summary = "Yeni Event yaratmaq",description = "Yeni bir event yaradir",
             tags = {"Admin Operations"},security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -160,7 +158,7 @@ public class AdminController {
                .body(CommonResponse.success("Event ugurla elave edilmisdir...",eventResponseDTO));
     }
 
-    //Movcud event-a movcud place-i elave etmek  ++++Postman+++   security
+
     @Operation(summary = "Movcud Event-in Place ile elaqelendirilmesi",
             description = "Evvelce EventId-e gore Event-in ve PlaceId-e gore Place-nin olub olmamasini yoxlayir," +
                     " sonra Event-i Place ile elaqelendirir ",
@@ -176,7 +174,7 @@ public class AdminController {
                         + " olan Place ugurla elave edildi..",eventAndPlaceResponseDTO));
     }
 
-    //Event-in Place deyismek (movcud bir place ile)   ++++Postman+++   security
+
     @Operation(summary = "Event-in Place-ni deyisdirilmesi",
             description = "EventId-e gore Event-in Place-ni deyisir",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -193,7 +191,7 @@ public class AdminController {
 
     }
 
-    //Movcud Event-a TicketType ve count-a gore ticket elave edilmesi   +++++Postman++  security
+
     @Operation(summary = "Movcud Event-e Ticket elave edilmesi",
             description = "Movcud Event-e Ticketler elave edir",
             tags = {"Admin Operations"},security = @SecurityRequirement(name = "bearerAuth")
@@ -208,7 +206,7 @@ public class AdminController {
     }
 
 
-    //Yeni Event, TicketType (VIP, Regular ve ya tekce bir tipe uygun) ve ticketler      ++++Postman+++  security
+
     @Operation(summary = "Yeni Event, Biletlerin novlerine uygun Biletlerin yaradilmasi ",
             description = "Yeni event yaradir ve biletletrin novune gore ticketleri ellave edir." +
                     " Bu bir tipe de, muxtelif tipe de aid ola biler",
@@ -224,7 +222,8 @@ public class AdminController {
                 .body(CommonResponse.success("Event biletler ile birlikde ugurla yaradildi...",event));
     }
 
-    //Event-in Available ticket sayina baxmaq ucun  ++Postman++++  security
+
+
     @Operation(summary = "Event-de satilmamis biletlerin sayi",
             description = "Event-de satilmamis biletlerin sayini gosterir",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -236,7 +235,7 @@ public class AdminController {
                 .body(CommonResponse.success("Movcud bilet sayi: " + count, count));
     }
 
-    //Event tarixini deyisdirmek    +++++Postman+++  Security
+
     @Operation(summary = "Event-in tarixini deyismek",
             description = "Event-in kecireceyi vaxti deyismek ucun istifade olunur",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -249,7 +248,8 @@ public class AdminController {
                 .body(CommonResponse.success("Event-in tarixi ugurla deyisdirildi..",event));
     }
 
-    //Event-in description deyismek
+
+
     @Operation(summary = "Event-in description-u deyismek",
             description = "Event-in description-nu deyismek ucun istifade olunur",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -264,10 +264,6 @@ public class AdminController {
 
 
 
-
-
-
-    //Event-in gelirini hesablamaq       security
     @Operation(summary = "Event-in biletlerinin(satilmis) qiymetini hesablayir",
             description = "Event-in satilmis (status.Sold olan) biletlerin qiymetlerini toplayir",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth")
@@ -282,8 +278,6 @@ public class AdminController {
 
 
 
-
-    //Event Silmek  ++++++Postman+++  security
     @Operation(
             summary = "Event silmək",
             description = "Verilmiş ID-ə əsasən bir event-i silir",
@@ -296,7 +290,8 @@ public class AdminController {
                 + " olan Event ugurla silinmisdir...", null));
     }
 
-    //Butun eventleri silme   Security
+
+
     @Operation(
             summary = "Bütün Eventləri silmək",
             description = "Sistemdəki bütün Event-ləri silir. Bu əməliyyat diqqətlə istifadə olunmalıdır.",
@@ -315,7 +310,7 @@ public class AdminController {
 
 //---------------------------------------------Place ile bagli----------------------------------------------------
 
-    //Place Elave etmek   +++++Postman+++++
+
     @Operation(summary = "Place yaratmaq", description = "Yeni Place yaratmaq ucun istifade olunur",
     tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/create/place")
@@ -325,7 +320,7 @@ public class AdminController {
                 .body(CommonResponse.success("Place ugurla yaradildi...", placeResponse));
     }
 
-    //place Id-e gore axtaris +++++Postman+++++
+
     @Operation(summary = "Place-in Id-ne gore axtaris",
             description = "Place-in Id-ne gore axtaris etmek ucun istifade olunur",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth"))
@@ -337,7 +332,7 @@ public class AdminController {
     }
 
 
-    //place silmek   +++++Postman++++
+
     @Operation(summary = "Bir Place silmek", description = "Place-in Id-ne gore bir Place silir",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/places/{placeId}")
@@ -347,7 +342,7 @@ public class AdminController {
                 .body(CommonResponse.success("Id-si " +placeId +" olan Place silindi...", null));
     }
 
-    //Umumi place-leri silmek   +++++Postman++++
+
     @Operation(summary = "Butun Place-leri silmek", description = "Sistemde olan butun Place-leri silir.",
             tags = {"Admin Operations"}, security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/all-places")
